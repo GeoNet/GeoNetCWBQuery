@@ -1,0 +1,48 @@
+
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd" xmlns:m="http://ant.apache.org/ivy/maven">
+
+    <info organisation="nz.org.geonet" module="CWBQuery" revision="2.0"/>
+
+    <configurations>
+
+        <conf name="default" visibility="public" description="runtime dependencies and master artifact can be used with this conf" extends="runtime,master"/>
+
+        <conf name="master" visibility="public" description="contains only the artifact published by this module itself, with no transitive dependencies"/>
+
+        <conf name="compile" visibility="public" description="this is the default scope, used if none is specified. Compile dependencies are available in all classpaths."/>
+
+        <conf name="provided" visibility="public" description="this is much like compile, but indicates you expect the JDK or a container to provide it. It is only available on the compilation classpath, and is not transitive."/>
+
+        <conf name="runtime" visibility="public" description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath." extends="compile"/>
+
+        <conf name="test" visibility="private" description="this scope indicates that the dependency is not required for normal use of the application, and is only available for the test compilation and execution phases." extends="runtime"/>
+
+        <conf name="system" visibility="public" description="this scope is similar to provided except that you have to provide the JAR which contains it explicitly. The artifact is always available and is not looked up in a repository."/>
+
+        <conf name="sources" visibility="public" description="this configuration contains the source artifact of this module, if any."/>
+
+        <conf name="javadoc" visibility="public" description="this configuration contains the javadoc artifact of this module, if any."/>
+
+        <conf name="foride" visibility="private" description="this configuration contains the source and/or javadoc artifacts of this modules dependecies for use to provide documentation in IDE."/>
+
+        <conf name="optional" visibility="public" description="contains all optional dependencies"/>
+
+    </configurations>
+
+    <publications>
+        <artifact name="GeoNetCWBQuery" type="jar" ext="jar" conf="master"/>
+        <artifact name="GeoNetCWBQuery" type="source" ext="jar" conf="sources" m:classifier="sources"/>
+        <artifact name="GeoNetCWBQuery" type="doc" ext="jar" conf="javadoc" m:classifier="javadoc"/>
+    </publications>
+
+    <dependencies>
+
+        <dependency org="gov.usgs.anss" name="EdgeFile" rev="unknown-1" conf="compile->default"/>
+        <dependency org="gov.usgs.anss" name="Usgs" rev="unknown-1" conf="compile->default"/>
+
+
+        <dependency org="com.cenqua.clover" name="clover" rev="latest." conf="optional->default"/>
+
+    </dependencies>
+
+</ivy-module>

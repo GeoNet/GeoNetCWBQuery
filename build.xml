@@ -8,6 +8,17 @@
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
 <project name="CWBQuery" default="default" basedir=".">
+
+	<get src="http://repo.geonet.org.nz/ivy/build/build-base.xml"
+		dest="${basedir}/build-base.xml" username="" password=""
+		usetimestamp="true" ignoreerrors="true"/>
+
+	<import file="${basedir}/build-base.xml" optional="true"/>
+
+	<target name="setup-nb-build-environment" depends="ivy-resolve,ivy-generate-nbproject-classpaths"
+		description="Run once after project check-out, or whenever ivy dependencies have changed in ivy.xml"/>
+
+
     <description>Builds, tests, and runs the project CWBQuery.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
