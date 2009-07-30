@@ -15,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import gov.usgs.anss.util.*;
+import gov.usgs.anss.util.PNZ;
 import gov.usgs.anss.seed.*;
 import edu.sc.seis.TauP.SacTimeSeries;
 
@@ -29,6 +29,7 @@ public class SacOutputer extends Outputer {
     private static SacPZ stasrv;
     private static String stasrvHost;
     private static int stasrvPort;
+	static {logger.fine("$Id$");}
 
     /** Creates a new instance of SacOutputer */
     public SacOutputer() {
@@ -49,8 +50,9 @@ public class SacOutputer extends Outputer {
         boolean sactrim = false;      // return full length padded with no data value
         String pzunit = "nm";
 
-        String stahost = Util.getProperty("metadataserver");
-        int staport = 2052;
+
+        String stahost = QueryProperties.getNeicMetadataServerIP();
+        int staport = QueryProperties.getNeicMetadataServerPort();
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-fill")) {
                 fill = Integer.parseInt(args[i + 1]);
@@ -72,7 +74,8 @@ public class SacOutputer extends Outputer {
                 sacpz = true;
                 pzunit = args[i + 1];
                 if (stahost == null || stahost.equals("")) {
-                    stahost = "137.227.230.1";
+                    logger.warning("No metadata server set.  Exiting.");
+                    System.exit(0);
                 }
             }
         }
@@ -93,13 +96,13 @@ public class SacOutputer extends Outputer {
         if (span.getRate() <= 0.00) {
             return;         // There is no real data to put in SAC
         }
-        if (dbg) {
-            Util.prt("ZeroSpan=" + span.toString());
-        }
+
+		logger.fine("ZeroSpan=" + span.toString());
+
         int noval = span.getNMissingData();
 
         if (nogaps && span.hasGapsBeforeEnd()) {
-            Util.prt("  ** " + lastComp + " has gaps - discarded # missing =" + noval);
+            logger.warning("  ** " + lastComp + " has gaps - discarded # missing =" + noval);
             return;
         }
         if (filemask.equals("%N")) {
@@ -136,7 +139,7 @@ public class SacOutputer extends Outputer {
             int loop = 0;
             while (s.indexOf("MetaDataServer not up") >= 0) {
                 if (loop++ % 15 == 1) {
-                    Util.prta("MetaDataServer is not up - waiting for connection");
+                    logger.info("MetaDataServer is not up - waiting for connection");
                 }
                 try {
                     Thread.sleep(2000);
@@ -162,9 +165,9 @@ public class SacOutputer extends Outputer {
                         orient[2] = Double.parseDouble(line.substring(15));
                     }
                 }
-                //Util.prt("coord="+coord[0]+" "+coord[1]+" "+coord[2]+" orient="+orient[0]+" "+orient[1]+" "+orient[2]);
+	            logger.finer("coord="+coord[0]+" "+coord[1]+" "+coord[2]+" orient="+orient[0]+" "+orient[1]+" "+orient[2]);
             } catch (IOException e) {
-                Util.prta("OUtput error writing sac response file " + lastComp + ".resp e=" + e.getMessage());
+                logger.severe("OUtput error writing sac response file " + lastComp + ".resp e=" + e.getMessage());
             }
         }
 
@@ -203,7 +206,7 @@ public class SacOutputer extends Outputer {
         }
         if (coord[0] == SacTimeSeries.DOUBLE_UNDEF && coord[1] == SacTimeSeries.DOUBLE_UNDEF && coord[2] == SacTimeSeries.DOUBLE_UNDEF) {
             if (!noStaSrv) {
-                Util.prt("   **** " + lastComp + " did not get lat/long.  Is server down?");
+                logger.warning("   **** " + lastComp + " did not get lat/long.  Is server down?");
             }
         }
         if (orient != null) {
@@ -219,35 +222,35 @@ public class SacOutputer extends Outputer {
         } else {
             if (orient[0] == SacTimeSeries.DOUBLE_UNDEF && orient[1] == SacTimeSeries.DOUBLE_UNDEF) {
                 if (!noStaSrv) {
-                    Util.prt("      ***** " + lastComp + " Did not get orientation.  Is server down?");
+                    logger.warning("      ***** " + lastComp + " Did not get orientation.  Is server down?");
                 }
             }
         }
-        //Util.prt("Sac stla="+sac.stla+" stlo="+sac.stlo+" stel="+sac.stel+" cmpaz="+sac.cmpaz+" cmpinc="+sac.cmpinc+" stdp="+sac.stdp);
+        logger.finer("Sac stla="+sac.stla+" stlo="+sac.stlo+" stel="+sac.stel+" cmpaz="+sac.cmpaz+" cmpinc="+sac.cmpinc+" stdp="+sac.stdp);
         sac.y = new double[span.getNsamp()];   // allocate space for data
         int nodata = 0;
         for (int i = 0; i < span.getNsamp(); i++) {
             sac.y[i] = span.getData(i);
             if (sac.y[i] == fill) {
                 nodata++;
-                //if(nodata <3) Util.prt(i+" nodata len="+span.getNsamp());
+            //if(nodata <3) logger.finest(i+" nodata len="+span.getNsamp());
             }
         }
         if (nodata > 0 && !quiet) {
-            Util.prt("#No data points = " + nodata + " fill=" + fill + " npts=" + sac.npts);
+            logger.info("#No data points = " + nodata + " fill=" + fill + " npts=" + sac.npts);
         }
         if (sactrim) {
             int trimmed = sac.trimNodataEnd(fill);
             if (trimmed > 0) {
-                Util.prt(trimmed + " data points trimmed from end containing no data");
+                logger.info(trimmed + " data points trimmed from end containing no data");
             }
         }
         try {
             sac.write(filename);
         } catch (FileNotFoundException e) {
-            Util.IOErrorPrint(e, "File Not found writing SAC");
+            logger.severe(e + " File Not found writing SAC");
         } catch (IOException e) {
-            Util.IOErrorPrint(e, "IO exception writing SAC");
+            logger.severe(e + " IO exception writing SAC");
             throw e;
         }
 

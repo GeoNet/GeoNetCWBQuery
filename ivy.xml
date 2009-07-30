@@ -25,21 +25,24 @@
 
         <conf name="foride" visibility="private" description="this configuration contains the source and/or javadoc artifacts of this modules dependecies for use to provide documentation in IDE."/>
 
-        <conf name="optional" visibility="public" description="contains all optional dependencies"/>
+        <conf name="optional" visibility="public" description="contains all optional dependencies."/>
 
     </configurations>
 
     <publications>
-        <artifact name="GeoNetCWBQuery" type="jar" ext="jar" conf="master"/>
-        <artifact name="GeoNetCWBQuery" type="source" ext="jar" conf="sources" m:classifier="sources"/>
-        <artifact name="GeoNetCWBQuery" type="doc" ext="jar" conf="javadoc" m:classifier="javadoc"/>
+        <artifact name="CWBQuery" type="jar" ext="jar" conf="master"/>
+        <artifact name="CWBQuery" type="source" ext="jar" conf="sources" m:classifier="sources"/>
+        <artifact name="CWBQuery" type="doc" ext="jar" conf="javadoc" m:classifier="javadoc"/>
     </publications>
 
     <dependencies>
 
-        <dependency org="gov.usgs.anss" name="EdgeFile" rev="unknown-1" conf="compile->default"/>
-        <dependency org="gov.usgs.anss" name="Usgs" rev="unknown-1" conf="compile->default"/>
+        <dependency org="gov.usgs.anss" name="EdgeFile" rev="unknown-1" conf="compile->default;foride->sources"/>
+        <dependency org="gov.usgs.anss" name="Usgs" rev="unknown-1" conf="compile->default;foride->sources"/>
 
+        <dependency org="joda-time" name="joda-time" rev="1.6" conf="compile->default;foride->sources" />
+
+        <dependency org="junit" name="junit" rev="4.1" conf="test->default"/>
 
         <dependency org="com.cenqua.clover" name="clover" rev="latest." conf="optional->default"/>
 

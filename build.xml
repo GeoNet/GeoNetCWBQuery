@@ -8,6 +8,8 @@
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
 <project name="CWBQuery" default="default" basedir=".">
+	<description>Builds, tests, and runs the project CWBQuery.</description>
+    <import file="nbproject/build-impl.xml"/>
 
 	<get src="http://repo.geonet.org.nz/ivy/build/build-base.xml"
 		dest="${basedir}/build-base.xml" username="" password=""
@@ -19,8 +21,7 @@
 		description="Run once after project check-out, or whenever ivy dependencies have changed in ivy.xml"/>
 
 
-    <description>Builds, tests, and runs the project CWBQuery.</description>
-    <import file="nbproject/build-impl.xml"/>
+
     <!--
 
     There exist several targets which are by default empty and which can be 

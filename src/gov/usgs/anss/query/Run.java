@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import gov.usgs.anss.seed.*;
-import gov.usgs.anss.util.*;
+import java.util.logging.Logger;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  *
@@ -31,6 +34,10 @@ public class Run implements Comparable<Run> {
     String seedname;
     double rate;
     int nweird;
+	protected static final Logger logger = Logger.getLogger(Run.class.getName());
+	static {logger.fine("$Id$");}
+
+    private static DateTimeFormatter dtFormat = ISODateTimeFormat.dateTime().withZone(DateTimeZone.forID("UTC"));
 
     /** return the seedname for the run
      *@return The seedname*/
@@ -66,8 +73,8 @@ public class Run implements Comparable<Run> {
     /** string representation
      *@return a String representation of this run */
     public String toString() {
-        return "Run from " + Util.ascdate(start) + " " + Util.asctime2(start) + " to " +
-                Util.ascdate(end) + " " + Util.asctime2(end) + " " + getLength() + " s #blks=" + blks.size();
+        return "Run from " + dtFormat.print(start.getTimeInMillis()) + " to " +
+                dtFormat.print(end.getTimeInMillis()) + " " + getLength() + " s #blks=" + blks.size();
     }
 
     /** return the ith miniseed block
@@ -127,7 +134,7 @@ public class Run implements Comparable<Run> {
         }
         if (rate > 0. && ms.getRate() > 0. && nweird % 1000 == 0) {
             if (Math.abs(rate - ms.getRate()) / rate > 0.01) {
-                Util.prt("Run diff rates! " + seedname + " nw=" + (nweird++) +
+                logger.warning("Run diff rates! " + seedname + " nw=" + (nweird++) +
                         " exp=" + rate + " ms=" + ms.toString());
             }
         }

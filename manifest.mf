@@ -1,3 +1,2 @@
 Manifest-Version: 1.0
 Main-Class: gov.usgs.anss.query.EdgeQueryClient
-X-COMMENT: Main-Class will be added automatically by build

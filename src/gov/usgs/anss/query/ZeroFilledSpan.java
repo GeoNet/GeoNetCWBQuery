@@ -8,14 +8,18 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 package gov.usgs.anss.query;
-//import com.sun.tools.javac.util.List;
+
 import edu.iris.Fissures.codec.*;
 import gov.usgs.anss.seed.MiniSeed;
-import gov.usgs.anss.util.*;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.logging.Logger;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 /** This class represent a time series chunk which is zero filled if data is
  * missing.  The idea is to allow creation, population by a series of blocks
@@ -37,6 +41,13 @@ public class ZeroFilledSpan {
     double rate = 0.;
     boolean dbg = false;
     String missingSummary;
+    protected static final Logger logger = Logger.getLogger(ZeroFilledSpan.class.getName());
+
+
+    static {logger.fine("$Id$");}
+   
+    private static DateTimeFormatter dtFormat = ISODateTimeFormat.dateTime().withZone(DateTimeZone.forID("UTC"));
+    private static DateTimeFormatter hmsFormat = DateTimeFormat.forPattern("hh:mm:ss.SSS").withZone(DateTimeZone.forID("UTC"));
 
     /** string represting this time series
      *@return a String with nsamp, rate and start date/time*/
@@ -44,13 +55,13 @@ public class ZeroFilledSpan {
     public String toString() {
         getNMissingData();
         return "ZeroFilledSpan:  ns=" + nsamp + " rt=" + rate + " " +
-                Util.ascdate(start) + " " + Util.asctime(start) + " missing: " + missingSummary;
+                dtFormat.print(start.getTimeInMillis()) + " missing: " + missingSummary;
     }
 
     public String timeAt(int i) {
         GregorianCalendar e = new GregorianCalendar();
         e.setTimeInMillis(start.getTimeInMillis() + ((long) (i / rate * 1000. + 0.5)));
-        return Util.asctime2(e);
+        return hmsFormat.print(e.getTimeInMillis());
     }
 
     public GregorianCalendar getGregorianCalendarAt(int i) {
@@ -65,15 +76,25 @@ public class ZeroFilledSpan {
         return rate;
     }
 
+    /**
+     * This setter is only to allow for unit testing timeAt(int i)
+     * properly.
+     *
+     * @param r digitizing rate in HZ
+     */
+    protected void setRate(double r) {
+        this.rate = r;
+    }
+
     public int getData(GregorianCalendar starting, int nsamp, int[] d) {
         long msoff = starting.getTimeInMillis() - start.getTimeInMillis();
         int offset = (int) ((msoff + 1. / rate * 1000 / 2. - 1.) / 1000. * rate);
         if (offset < 0) {
             return -1;
         }
-        if (dbg) {
-            Util.prt("getData starting =" + Util.asctime2(starting) + " buf start=" + Util.asctime2(start) + " offset=" + offset);
-        }
+
+        logger.fine("getData starting =" + hmsFormat.print(starting.getTimeInMillis()) + " buf start=" + hmsFormat.print(start.getTimeInMillis()) + " offset=" + offset);
+
         if (nsamp + offset > data.length) {
             nsamp = data.length - offset;
         }
@@ -235,12 +256,12 @@ public class ZeroFilledSpan {
                     gapSize++;
                 }
                 details.append("*** " + (i + "        ").substring(0, 8) +
-                        Util.leftPad((data[i] == fillValue ? "  nodata  " : "" + data[i]), 8) +
-                        Util.leftPad((z.getData(i) == fillValue ? "  nodata  " : "" + z.getData(i)), 8));
+                        leftPad((data[i] == fillValue ? "  nodata  " : "" + data[i]), 8) +
+                        leftPad((z.getData(i) == fillValue ? "  nodata  " : "" + z.getData(i)), 8));
                 if (data[i] == fillValue || z.getData(i) == fillValue) {
                     details.append("\n");
                 } else {
-                    details.append(Util.leftPad("df=" + (data[i] - z.getData(i)), 14) + "\n");
+                    details.append(leftPad("df=" + (data[i] - z.getData(i)), 14) + "\n");
                 }
             } else {
                 if (gapStart != -1) {
@@ -361,7 +382,7 @@ public class ZeroFilledSpan {
             j++;
         }
         if (rate == 0.) {
-            Util.prt("There is no data in this span");
+            logger.info("There is no data in this span");
             nsamp = 0;
             data = new int[1];
             start = new GregorianCalendar();
@@ -374,22 +395,21 @@ public class ZeroFilledSpan {
         }
         int begoffset = (int) ((trim.getTimeInMillis() - ms.getGregorianCalendar().getTimeInMillis()) *
                 rate / 1000. + 0.01);
-        if (dbg) {
-            Util.prt(Util.ascdate(trim) + " " + Util.asctime(trim) + " start=" +
-                    Util.ascdate(ms.getGregorianCalendar()) + " " + Util.asctime(ms.getGregorianCalendar()));
-        }
+
+        logger.fine(dtFormat.print(trim.getTimeInMillis()) + " start = " + dtFormat.print(ms.getGregorianCalendar().getTimeInMillis()));
+
         // The start time of this span is the time of first sample from first ms after
         // the trim start time
         start = new GregorianCalendar();
         start.setTimeInMillis(ms.getGregorianCalendar().getTimeInMillis());
         start.add(Calendar.MILLISECOND, (int) (begoffset / rate * 1000.));// first in trimmed interval
-        if (dbg) {
-            Util.prt(Util.ascdate(start) + " " + Util.asctime(start) + " begoff=" + begoffset);
-        }
+
+        logger.fine(dtFormat.print(start.getTimeInMillis()) + " begoff= " + begoffset);
+
         byte[] frames;
         MiniSeed msend = (MiniSeed) list.get(list.size() - 1);
         nsamp = (int) (duration * ms.getRate() + 0.5);
-        //Util.prt("duration="+duration+" nsf="+(duration*ms.getRate())+"nsamp="+nsamp);
+        //logger.finer("duration="+duration+" nsf="+(duration*ms.getRate())+"nsamp="+nsamp);
         data = new int[nsamp];
         if (fill != 0) {
             for (int i = 0; i < nsamp; i++) {
@@ -403,10 +423,10 @@ public class ZeroFilledSpan {
                     start.getTimeInMillis() + msover2) * rate / 1000.);
             long mod = (long) ((ms.getGregorianCalendar().getTimeInMillis() -
                     start.getTimeInMillis() + msover2) * rate) % 1000L;
-            if (dbg) {
-                Util.prt(Util.ascdate(start) + " " + Util.asctime(start) + " ms[0]=" +
-                        Util.ascdate(ms.getGregorianCalendar()) + " " + Util.asctime(ms.getGregorianCalendar()) + " offset=" + offset + " ns=" + ms.getNsamp());
-            }
+
+            logger.fine(dtFormat.print(start.getTimeInMillis()) + " ms[0] =" +
+                    dtFormat.print(ms.getGregorianCalendar().getTimeInMillis()) + " offset=" + offset + " ns=" + ms.getNsamp());
+
 
             // get the compression frames
             frames = new byte[ms.getBlockSize() - ms.getDataOffset()];
@@ -419,11 +439,11 @@ public class ZeroFilledSpan {
                     }
                 }
                 if (!skip) {
-                    Util.prt("ZeroFilledSpan: Cannot decode - not Steim I or II type=" + ms.getEncoding() + " blk=" + i);
-                    Util.prt(ms.toString());
+                    logger.warning("ZeroFilledSpan: Cannot decode - not Steim I or II type=" + ms.getEncoding() + " blk=" + i);
+                    logger.warning(ms.toString());
                 }
                 continue;
-                //System.exit(0);
+            //System.exit(0);
             }
             try {
                 int reverse = 0;
@@ -435,7 +455,7 @@ public class ZeroFilledSpan {
                     samples = Steim2.decode(frames, ms.getNsamp(), ms.isSwapBytes(), reverse);
                 }
                 // if the offset calculated is negative, shorten the transfer to beginning
-                //Util.prt("offset="+offset+" ms.nsamp="+ms.getNsamp()+" bufsiz="+nsamp);
+                //logger.finer("offset="+offset+" ms.nsamp="+ms.getNsamp()+" bufsiz="+nsamp);
                 if (offset < 0) {
                     if (ms.getNsamp() + offset - 1 > 0) {
                         System.arraycopy(samples, -offset + 1, data, 0,
@@ -446,8 +466,29 @@ public class ZeroFilledSpan {
                             Math.min(ms.getNsamp(), nsamp - offset));
                 }
             } catch (SteimException e) {
-                Util.prt("block " + i + " gave steim decode error. " + e.getMessage());
+                logger.severe("block " + i + " gave steim decode error. " + e.getMessage());
             }
         }           // end for each block in list
     }
+
+	/** Left pad a string s to Width.
+	 *@param s The string to pad
+	 *@param width The desired width
+	 *@return The padded string to width
+	 */
+	protected static String leftPad(String s, int width) {
+		String tmp = "";
+		int npad = width - s.length();
+		if (npad < 0) {
+			tmp = s.substring(0, width);
+		} else if (npad == 0) {
+			tmp = s;
+		} else {
+			for (int i = 0; i < npad; i++) {
+				tmp += " ";
+			}
+			tmp += s;
+		}
+		return tmp;
+	}
 }
