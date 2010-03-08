@@ -175,7 +175,7 @@ public class SacOutputer extends Outputer {
         // Set the byteOrder based on native architecture and sac statics
         sac.nvhdr = 6;                // Only format supported
         sac.b = 0.;           // beginning time offsed
-        sac.e = (span.getNsamp() / span.getRate());
+        sac.e = ((span.getNsamp() - 1) / span.getRate());
         sac.iftype = SacTimeSeries.ITIME;
         sac.leven = SacTimeSeries.TRUE;
         sac.delta = (1. / span.getRate());
