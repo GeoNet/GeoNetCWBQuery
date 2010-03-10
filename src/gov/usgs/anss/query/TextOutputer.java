@@ -20,8 +20,14 @@ public class TextOutputer extends Outputer {
 //	public static final int SAC_UNDEFINED = -12345;		// this is the undefined value for the Sac data format.
 	static {logger.fine("$Id$");}
 
-    public void makeFile(String comp, String filename, String filemask, ArrayList<MiniSeed> blks,
-            java.util.Date beg, double duration, String[] args) throws IOException {
+    /** Creates a new instance of SacOutputer */
+    public TextOutputer(EdgeQueryOptions options) {
+		this.options = options;
+    }
+
+
+    public void makeFile(NSCL nscl, String filename,
+			ArrayList<MiniSeed> blks) throws IOException {
 
         // Process the args for things that affect us
         if (blks.isEmpty()) {
@@ -30,15 +36,15 @@ public class TextOutputer extends Outputer {
 		int fill = WINSTON_NO_DATA;
         boolean nogaps = false;		// if true, do not generate a file if it has any gaps!
 
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-fill")) {
-                fill = Integer.parseInt(args[i + 1]);
+        for (int i = 0; i < options.extraArgs.size(); i++) {
+            if (options.extraArgs.get(i).equals("-fill")) {
+                fill = Integer.parseInt(options.extraArgs.get(i + 1));
             }
-            if (args[i].equals("-nogaps")) {
+            if (options.extraArgs.get(i).equals("-nogaps")) {
                 nogaps = true;
             }
         }
-        if (filemask.equals("%N")) {
+        if (options.filemask.equals("%N")) {
             filename += ".txt";
         }
 		logger.info("filename=" + filename);
@@ -47,10 +53,10 @@ public class TextOutputer extends Outputer {
 
         // Use the span to populate a sac file
         GregorianCalendar start = new GregorianCalendar();
-        start.setTimeInMillis(beg.getTime());
+        start.setTimeInMillis(options.getBeginWithOffset().getMillis());
 
         // build the zero filled area (either with exact limits or with all blocks)
-        final ZeroFilledSpan span = new ZeroFilledSpan(blks, start, duration, fill);
+        final ZeroFilledSpan span = new ZeroFilledSpan(blks, start, options.getDuration(), fill);
         if (span.getRate() <= 0.00) {
             return;         // There is no real data to put in SAC
         }

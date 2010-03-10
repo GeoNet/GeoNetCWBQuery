@@ -22,29 +22,14 @@ abstract public class Outputer {
 	protected static final Logger logger = Logger.getLogger(Outputer.class.getName());
 	static {logger.fine("$Id$");}
 
-    /** Creates a new instance of Outputer */
-    public Outputer() {
-    }
+	protected EdgeQueryOptions options;
 
-    /** the main routine gives an UNSORTED list in blks.  If it needs to be sorted call
+    /**
+	 * the main routine gives an UNSORTED list in blks.  If it needs to be sorted call
      * Collections.sort(blks);
      */
-    abstract public void makeFile(String comp, String filename, String mask, ArrayList<MiniSeed> blks,
-            java.util.Date beg, double duration, String[] args) throws IOException;
-
-      /** convert to hex string
-     *@param b The item to convert to hex
-     *@return The hex string */
-    protected static String toHex(byte b) {
-        return toHex(((long) b) & 0xFFL);
-    }
-
-    /** convert to hex string
-     *@param b The item to convert to hex
-     *@return The hex string */
-    protected static String toHex(short b) {
-        return toHex(((long) b) & 0xFFFFL);
-    }
+    abstract public void makeFile(NSCL nscl, String filename,
+			ArrayList<MiniSeed> blks) throws IOException;
 
     /** convert to hex string
      *@param b The item to convert to hex

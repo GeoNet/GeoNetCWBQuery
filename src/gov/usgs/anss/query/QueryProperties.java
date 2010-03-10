@@ -4,7 +4,12 @@
  */
 package gov.usgs.anss.query;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -40,5 +45,26 @@ public class QueryProperties {
 
     public static String getUsage() {
         return props.getString("usage");
+    }
+
+    public static String getQuakeMlUri(String authority) {
+        return props.getString(authority + ".quakeml-uri");
+    }
+
+    public static List<String> getQuakeMlAuthorities() {
+		List<String> auths = new ArrayList<String>();
+		Pattern p = Pattern.compile("^(.*)\\.quakeml-uri$");
+        
+		Enumeration<String> keys = props.getKeys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+
+			Matcher m = p.matcher(key);
+			if (m.matches()) {
+				auths.add(m.group(1));
+			}
+		}
+		
+		return auths;
     }
 }

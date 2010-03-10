@@ -28,31 +28,20 @@ public class HoldingOutputer extends Outputer {
 	static {logger.fine("$Id$");}
 
     /** Creates a new instance of HoldingsOutput */
-    public HoldingOutputer() {
+    public HoldingOutputer(EdgeQueryOptions options) {
+		this.options = options;
     }
 
-    public void makeFile(String comp, String filename, String filemask, ArrayList<MiniSeed> blks,
-            java.util.Date beg, double duration, String[] args) throws IOException {
+    public void makeFile(NSCL nscl, String filename,
+			ArrayList<MiniSeed> blks) throws IOException {
 
         MiniSeed ms2 = null;
-        String holdingIP = QueryProperties.getGeoNetCwbIP();
-        String holdingType = "CW";
-        int holdingPort = QueryProperties.getGeoNetCwbPort();
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].indexOf("-hold") == 0) {
-                String[] a = args[i].split(":");
-                if (a.length == 4) {
-                    holdingIP = a[1];
-                    holdingPort = Integer.parseInt(a[2]);
-                    holdingType = a[3];
-                }
-            }
-        }
+        
         if (hs == null) {
             try {
-                hs = new HoldingSender("-h " + holdingIP + " -p " + holdingPort + " -t " + holdingType + " -q 10000 -tcp", "");
+                hs = new HoldingSender("-h " + options.holdingIP + " -p " + options.holdingPort + " -t " + options.holdingType + " -q 10000 -tcp", "");
             } catch (UnknownHostException e) {
-                logger.severe("Unknown host exception host=" + holdingIP);
+                logger.severe("Unknown host exception host=" + options.holdingIP);
                 System.exit(1);
             }
         }

@@ -1,4 +1,4 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd" xmlns:m="http://ant.apache.org/ivy/maven">
 
     <info organisation="nz.org.geonet" module="CWBQuery" revision="2.0"/>
@@ -27,6 +27,8 @@
 
         <conf name="optional" visibility="public" description="contains all optional dependencies."/>
 
+        <conf name="external" visibility="public" description="contains all external java dependencies."/>
+
     </configurations>
 
     <publications>
@@ -42,7 +44,19 @@
 
         <dependency org="joda-time" name="joda-time" rev="1.6" conf="compile->default;foride->sources" />
 
-        <dependency org="junit" name="junit" rev="4.1" conf="test->default"/>
+        <dependency org="nz.org.geonet" name="jquakeml-1.0.1" rev="latest." conf="compile->default;foride->sources" />
+
+        <dependency org="TauP" name="TauP-no-sac-timeseries" rev="1.1.7" conf="compile->default" />
+
+        <dependency org="log4j" name="log4j" rev="1.2.8" conf="runtime->default"/>
+
+        <dependency org="nz.org.geonet" name="GeoNetCWBQuery" rev="2.0.0" conf="external->master"/>
+
+        <dependency org="nz.org.geonet" name="CWBQueryTestData" rev="1.0.1" conf="test->default"/>
+
+        <dependency org="junit" name="junit" rev="4.7" conf="test->default"/>
+
+        <dependency org="gsbase" name="gsbase" rev="2.0.1" conf="test->default"/>
 
         <dependency org="com.cenqua.clover" name="clover" rev="latest." conf="optional->default"/>
 

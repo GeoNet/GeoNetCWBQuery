@@ -99,11 +99,12 @@ public class DCCOutputer extends Outputer implements MiniSeedOutputHandler {
     private static DateTimeFormatter dtFormat = ISODateTimeFormat.dateTime().withZone(DateTimeZone.forID("UTC"));
 
     /** Creates a new instance of DCCOutputer */
-    public DCCOutputer() {
+    public DCCOutputer(EdgeQueryOptions options) {
+		this.options = options;
     }
 
-    public void makeFile(String comp, String filename, String filemask, ArrayList<MiniSeed> blks,
-            java.util.Date beg, double duration, String[] args) throws IOException {
+    public void makeFile(NSCL nscl, String filename,
+			ArrayList<MiniSeed> blks) throws IOException {
         MiniSeed ms2 = null;
         frames = new byte[4096 - 64];   // scratch space for decompression
         runs = new ArrayList<Run>(100);
@@ -114,7 +115,7 @@ public class DCCOutputer extends Outputer implements MiniSeedOutputHandler {
         bb = ByteBuffer.wrap(dummy);
         ZeroFilledSpan checkInput = null;
         ZeroFilledSpan checkOutput = null;
-        dropDeadEnd = (long) (beg.getTime() + duration * 1000. + 0.5);
+        dropDeadEnd = (long) (options.getBeginWithOffset().getMillis() + options.getDuration() * 1000. + 0.5);
 
         encoding = 11;
         check = false;                  // This controls whether we perform checks
@@ -176,7 +177,7 @@ public class DCCOutputer extends Outputer implements MiniSeedOutputHandler {
         // Some of the early Q330 data did not put Husec in Mini-seed but truncated MS.  Reverse this process
         boolean q330 = false;
         for (int i = 0; i < Q330S.length; i++) {
-            if (comp.substring(2, 7).trim().equals(Q330S[i])) {
+            if (nscl.getStation().trim().equals(Q330S[i])) {
                 q330 = true;
                 break;
             }
@@ -188,15 +189,15 @@ public class DCCOutputer extends Outputer implements MiniSeedOutputHandler {
         }
 
         // process args for specail usage here
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-chk")) {
+        for (int i = 0; i < options.extraArgs.size(); i++) {
+            if (options.extraArgs.get(i).equals("-chk")) {
                 check = true;
             }
-            if (args[i].equals("-dccdbg")) {
+            if (options.extraArgs.get(i).equals("-dccdbg")) {
                 dbg = true;
             }
         }
-        if (filemask.equals("%N")) {
+        if (options.filemask.equals("%N")) {
             filename += ".msd";
         }
 

@@ -21,37 +21,26 @@ import java.io.IOException;
 public class MSOutputer extends Outputer {
 
     boolean dbg;
-    boolean nosort;
 	static {logger.fine("$Id$");}
 
-    /** Creates a new instance of MSOutput */
-    public void setNosort() {
-        nosort = true;
+
+    public MSOutputer(EdgeQueryOptions options) {
+		this.options = options;
     }
 
-    public MSOutputer(boolean nos) {
-        nosort = nos;
-    }
 
-    public void makeFile(String comp, String filename, String filemask, ArrayList<MiniSeed> blks,
-            java.util.Date beg, double duration, String[] args) throws IOException {
+    public void makeFile(NSCL nscl, String filename,
+			ArrayList<MiniSeed> blks) throws IOException {
         MiniSeed ms2 = null;
-        boolean nodups = false;
-
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-nodups")) {
-                nodups = true;
-            }
-        }
-        if (filemask.equals("%N")) {
+        if (options.filemask.equals("%N")) {
             filename += ".ms";
         }
         filename = filename.replaceAll("[__]", "_");
         FileOutputStream out = new FileOutputStream(filename);
-        if (!nosort) {
+        if (!options.nosort) {
             Collections.sort(blks);
         }
-        if (nodups) {
+        if (options.chkDups) {
             for (int i = blks.size() - 1; i > 0; i--) {
                 if (blks.get(i).isDuplicate(blks.get(i - 1))) {
                     blks.remove(i);

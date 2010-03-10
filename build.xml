@@ -19,7 +19,26 @@
 
 	<target name="setup-nb-build-environment" depends="ivy-resolve,ivy-generate-nbproject-classpaths"
 		description="Run once after project check-out, or whenever ivy dependencies have changed in ivy.xml"/>
-
+    
+    <target name="-post-init" depends="-init-check-ivy,-do-ivy-init"/>
+    
+    <target name="-init-check-ivy">
+        
+        <condition property="ivy.needs.init">
+            
+            <and>
+                <available file="${basedir}/ivy.xml" type="file"/>
+                
+                <not>
+                    <available file="${ivy.lib.dir}" type="dir"/>
+                </not>
+            </and>
+        </condition>
+    </target>
+    
+    <target name="-do-ivy-init" if="ivy.needs.init">
+        <antcall target="setup-nb-build-environment"/>
+    </target>
 
 
     <!--
