@@ -7,7 +7,10 @@ package gov.usgs.anss.query.filefactory;
 import edu.sc.seis.TauP.SacTimeSeries;
 import java.util.ArrayList;
 import java.util.List;
+import nz.org.geonet.quakeml.v1_0_1.client.QuakemlFactory;
+import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.BeforeClass;
 import static org.junit.Assert.*;
@@ -22,6 +25,10 @@ public class SacHeadersSyntheticPhasesTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+    }
+
+    @Before
+    public void setup() {
         sac = new SacTimeSeries();
         sac.evla = -40.60804d;
         sac.evlo = 176.13933d;
@@ -49,7 +56,7 @@ public class SacHeadersSyntheticPhasesTest {
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, null);
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
@@ -66,7 +73,7 @@ public class SacHeadersSyntheticPhasesTest {
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, "iasp91");
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
@@ -81,7 +88,7 @@ public class SacHeadersSyntheticPhasesTest {
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, "prem");
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
@@ -97,12 +104,12 @@ public class SacHeadersSyntheticPhasesTest {
         expected.add(new SacPhasePick("PKiKP ak135", 991.7118920250937));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, "ak135");
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
     public void testGetSyntheticPhasesVerticalComponentBadModel() {
-        assertTrue("Didn't get exptect picks.", SacHeaders.getSyntheticPhases(sac, false, "not-a-model").isEmpty());
+        assertTrue("Didn't get expected picks.", SacHeaders.getSyntheticPhases(sac, false, "not-a-model").isEmpty());
     }
 
     @Test
@@ -130,7 +137,7 @@ public class SacHeadersSyntheticPhasesTest {
         expected.add(new SacPhasePick("sPKiKP iasp91", 999.9369439264844d));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, true, null);
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
@@ -148,7 +155,7 @@ public class SacHeadersSyntheticPhasesTest {
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, null);
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
@@ -169,7 +176,7 @@ public class SacHeadersSyntheticPhasesTest {
         expected.add(new SacPhasePick("ScS iasp91", 930.358728616058));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, true, null);
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
@@ -222,10 +229,10 @@ public class SacHeadersSyntheticPhasesTest {
         expected.add(new SacPhasePick("PKIKPPKIKP iasp91", 2421.0362718423635));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, null);
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
 
         result = SacHeaders.getSyntheticPhases(sac, false, null);
-        assertEquals("Didn't get exptect picks extended phases.", expected, result);
+        assertEquals("Didn't get expected picks extended phases.", expected, result);
     }
 
     @Test
@@ -258,7 +265,7 @@ public class SacHeadersSyntheticPhasesTest {
             System.out.println(String.format("%s %s", phase.getPhaseName(), phase.getTimeAfterOriginInSeconds()));
         }
 
-        assertEquals("Didn't get exptect picks.", expected, result);
+        assertEquals("Didn't get expected picks.", expected, result);
     }
 
     @Test
@@ -290,5 +297,102 @@ public class SacHeadersSyntheticPhasesTest {
         sac.cmpinc = 90.0d;
         assertEquals("Basic S", "tts", SacHeaders.componentOrientationToPhaseGroup(sac, false));
         assertEquals("Extended S", "tts+", SacHeaders.componentOrientationToPhaseGroup(sac, true));
+    }
+
+    @Test
+    public void testSetSyntheticPicksVertical() {
+        sac = SacHeaders.setPhasePicks(sac, false, null);
+
+        assertEquals("pick 0 name", "P iasp91", sac.kt0);
+        assertEquals("pick 0 time", 22.390350136363693, sac.t0, Math.ulp((float) sac.t0));
+
+        assertEquals("pick 1 name", "Pn iasp91", sac.kt1);
+        assertEquals("pick 1 time", 22.391044325111253, sac.t1, Math.ulp((float) sac.t1));
+
+        assertEquals("pick 2 name", "p iasp91", sac.kt2);
+        assertEquals("pick 2 time", 23.899170974844367, sac.t2, Math.ulp((float) sac.t2));
+
+        assertEquals("pick 3 name", "PKiKP iasp91", sac.kt3);
+        assertEquals("pick 3 time", 991.5016026786577, sac.t3, Math.ulp((float) sac.t3));
+
+        assertEquals("pick 4 name", "-12345  ", sac.kt4);
+        assertEquals("pick 4 time", -12345.0, sac.t4, Math.ulp((float) sac.t4));
+    }
+
+    @Test
+    public void testSetSyntheticPhasesHorzontalComponent() {
+        sac.cmpinc = 90.0d;
+        sac = SacHeaders.setPhasePicks(sac, false, null);
+
+        assertEquals("pick 0 name", "S iasp91", sac.kt0);
+        assertEquals("pick 0 time", 39.336879719734235, sac.t0, Math.ulp((float) sac.t0));
+
+        assertEquals("pick 1 name", "Sn iasp91", sac.kt1);
+        assertEquals("pick 1 time", 39.337656666113965, sac.t1, Math.ulp((float) sac.t1));
+
+        assertEquals("pick 2 name", "s iasp91", sac.kt2);
+        assertEquals("pick 2 time", 41.25364884040999, sac.t2, Math.ulp((float) sac.t2));
+
+        assertEquals("pick 3 name", "-12345  ", sac.kt3);
+        assertEquals("pick 3 time", -12345.0, sac.t3, Math.ulp((float) sac.t3));
+    }
+
+    @Test
+    public void testSetSyntheticPhasesAndQuakeMlHorzontalComponent() throws Exception {
+        sac.cmpinc = 90.0d;
+
+        sac.kstnm = "TSZ";
+        sac.knetwk = "NZ";
+        sac.kcmpnm = "HHN";
+        sac.khole = "10";
+
+        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersSyntheticPhasesTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null);
+
+        sac = SacHeaders.setPhasePicks(sac, quakeml, false, null);
+
+        assertEquals("pick 0 name", "S* m 028", sac.kt0);
+        assertEquals("pick 0 time", 17.001, sac.t0, Math.ulp((float) sac.t0));
+
+        assertEquals("pick 1 name", "S iasp91", sac.kt1);
+        assertEquals("pick 1 time", 39.336879719734235, sac.t1, Math.ulp((float) sac.t1));
+
+        assertEquals("pick 2 name", "Sn iasp91", sac.kt2);
+        assertEquals("pick 2 time", 39.337656666113965, sac.t2, Math.ulp((float) sac.t2));
+
+        assertEquals("pick 3 name", "s iasp91", sac.kt3);
+        assertEquals("pick 3 time", 41.25364884040999, sac.t3, Math.ulp((float) sac.t3));
+
+        assertEquals("pick 4 name", "-12345  ", sac.kt4);
+        assertEquals("pick 4 time", -12345.0, sac.t4, Math.ulp((float) sac.t4));
+    }
+
+    @Test
+    public void testSetSyntheticPicksAndQuakeMlVertical() throws Exception {
+        sac.kstnm = "TRWZ";
+        sac.knetwk = "NZ";
+        sac.kcmpnm = "EHZ";
+        sac.khole = "10";
+
+        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersSyntheticPhasesTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null);
+
+        sac = SacHeaders.setPhasePicks(sac, quakeml, false, null);
+
+        assertEquals("pick 0 name", "P* a 095", sac.kt0);
+        assertEquals("pick 0 time", 16.884, sac.t0, Math.ulp((float) sac.t0));
+
+        assertEquals("pick 1 name", "P iasp91", sac.kt1);
+        assertEquals("pick 1 time", 22.390350136363693, sac.t1, Math.ulp((float) sac.t1));
+
+        assertEquals("pick 2 name", "Pn iasp91", sac.kt2);
+        assertEquals("pick 2 time", 22.391044325111253, sac.t2, Math.ulp((float) sac.t2));
+
+        assertEquals("pick 3 name", "p iasp91", sac.kt3);
+        assertEquals("pick 3 time", 23.899170974844367, sac.t3, Math.ulp((float) sac.t3));
+
+        assertEquals("pick 4 name", "PKiKP iasp91", sac.kt4);
+        assertEquals("pick 4 time", 991.5016026786577, sac.t4, Math.ulp((float) sac.t4));
+
+        assertEquals("pick 5 name", "-12345  ", sac.kt5);
+        assertEquals("pick 5 time", -12345.0, sac.t5, Math.ulp((float) sac.t5));
     }
 }

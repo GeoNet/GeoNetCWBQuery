@@ -261,8 +261,124 @@ public class SacHeaders {
         return sac;
     }
 
+    /**
+     * Extracts phase picks from the QuakeML object for the given SAC object and writes them into the SAC header.
+     * The following SAC headers must be set: sac.knetwk, sac.kstnm, sac.kcmpnm
+     *
+     * The evaluation mode and evaluation status is added to the end of the phase
+     * name:
+     * <p>
+     * 'ac' - automatic confirmed.
+     * <p>
+     * 'ar' - automatic rejected.
+     * <p>
+     *  'mc' - manual confirmed.
+     *
+     * @param sac
+     * @param quakeml
+     * @return
+     */
     public static SacTimeSeries setPhasePicks(SacTimeSeries sac, Quakeml quakeml) {
+        return SacHeaders.setHeaderPhasePicks(sac, getQuakeMLPhasePicks(sac, quakeml));
+    }
 
+    /**
+     * Uses TauP (http://www.seis.sc.edu/taup/) to calculate synthetic arrival times
+     * for goups of phases on standard velocity models and writes the picks into the sac headers.
+     * The triplicated phases are removed before writing to the SAC headers.
+     * The following SAC headers must
+     * be set for any phases to be calculated: sac.evdp, sac.evla, sac.evlo, sac.stla,
+     * sac.stlo
+     *<p>
+     * If sac.cmpinc is set for a vertical component then P phases will be returned;<p>
+     * for extendedPhaseGroups == false: p, P, Pn, Pdiff, PKP, PKiKP, PKIKP<p>
+     * for extendedPhaseGroups == true: p, P, Pn, Pdiff, PKP, PKiKP, PKIKP, PcP, pP, pPdiff, pPKP, pPKIKP, pPKiKP, sP, sPdiff, sPKP, sPKIKP, sPKiKP<p>
+     *<p>
+     * If sac.cmpinc is set for a horizontal component then S phases will be returned.<p>
+     * for extendedPhaseGroups == false: s, S, Sn, Sdiff, SKS, SKIKS<p>
+     * for extendedPhaseGroups == true: s, S, Sn, Sdiff, SKS, SKIKS, sS, sSdiff, sSKS, sSKIKS, ScS, pS, pSdiff, pSKS, pSKIKS
+     *<p>
+     * Otherwise, if it is not possible to determine if a component is horizontal or vertical
+     * a basic set of P and S phases is returned.
+     *<p>
+     * For details about the standard velocity models see:
+     * http://rses.anu.edu.au/seismology/ak135/ak135f.html http://www.iaspei.org/projects/0903srl_iasp91_Arthur_Snoke.pdf http://books.google.co.nz/books?id=J-TObT4IEiUC&lpg=PA228&ots=PmOxLjcZqi&dq=prem%20seismic%20velocity%20model&pg=PA228#v=onepage&q=prem%20seismic%20velocity%20model&f=false
+     *
+     * @param sac
+     * @param extendedPhaseGroups set true for extended phase groups (additional phases).
+     * @param velocityModel either "iasp91" (default), "ak135", or "prem".
+     * @return
+     */
+    public static SacTimeSeries setPhasePicks(SacTimeSeries sac, boolean extendedPhaseGroups, String velocityModel) {
+        List<SacPhasePick> picks = getSyntheticPhases(sac, extendedPhaseGroups, velocityModel);
+
+        return (setHeaderPhasePicks(sac, reduceTriplicatedPhases(picks)));
+    }
+
+    /**
+     * Sets phase picks from QuakeML and calculates and sets synthetic picks.
+     * <p>
+     * Extracts phase picks from the QuakeML object for the given SAC object and writes them into the SAC header.
+     * The following SAC headers must be set: sac.knetwk, sac.kstnm, sac.kcmpnm
+     *
+     * The evaluation mode and evaluation status is added to the end of the phase
+     * name:
+     * <p>
+     * 'ac' - automatic confirmed.
+     * <p>
+     * 'ar' - automatic rejected.
+     * <p>
+     *  'mc' - manual confirmed.
+     *
+     * <p>
+     * Uses TauP (http://www.seis.sc.edu/taup/) to calculate synthetic arrival times
+     * for goups of phases on standard velocity models and writes the picks into the sac headers.
+     * The triplicated phases are removed before writing to the SAC headers.
+     * The following SAC headers must
+     * be set for any phases to be calculated: sac.evdp, sac.evla, sac.evlo, sac.stla,
+     * sac.stlo
+     *<p>
+     * If sac.cmpinc is set for a vertical component then P phases will be returned;<p>
+     * for extendedPhaseGroups == false: p, P, Pn, Pdiff, PKP, PKiKP, PKIKP<p>
+     * for extendedPhaseGroups == true: p, P, Pn, Pdiff, PKP, PKiKP, PKIKP, PcP, pP, pPdiff, pPKP, pPKIKP, pPKiKP, sP, sPdiff, sPKP, sPKIKP, sPKiKP<p>
+     *<p>
+     * If sac.cmpinc is set for a horizontal component then S phases will be returned.<p>
+     * for extendedPhaseGroups == false: s, S, Sn, Sdiff, SKS, SKIKS<p>
+     * for extendedPhaseGroups == true: s, S, Sn, Sdiff, SKS, SKIKS, sS, sSdiff, sSKS, sSKIKS, ScS, pS, pSdiff, pSKS, pSKIKS
+     *<p>
+     * Otherwise, if it is not possible to determine if a component is horizontal or vertical
+     * a basic set of P and S phases is returned.
+     *<p>
+     * For details about the standard velocity models see:
+     * http://rses.anu.edu.au/seismology/ak135/ak135f.html http://www.iaspei.org/projects/0903srl_iasp91_Arthur_Snoke.pdf http://books.google.co.nz/books?id=J-TObT4IEiUC&lpg=PA228&ots=PmOxLjcZqi&dq=prem%20seismic%20velocity%20model&pg=PA228#v=onepage&q=prem%20seismic%20velocity%20model&f=false
+     *
+     */
+    public static SacTimeSeries setPhasePicks(SacTimeSeries sac, Quakeml quakeml, boolean extendedPhaseGroups, String velocityModel) {
+        List<SacPhasePick> picks = reduceTriplicatedPhases(getSyntheticPhases(sac, extendedPhaseGroups, velocityModel));
+
+        picks.addAll(getQuakeMLPhasePicks(sac, quakeml));
+
+        return (setHeaderPhasePicks(sac, picks));
+    }
+
+    /**
+     * Extracts phase picks from the QuakeML object for the given SAC object.
+     * The following SAC headers must be set: sac.knetwk, sac.kstnm, sac.kcmpnm
+     *
+     * The evaluation mode and evaluation status is added to the end of the phase
+     * name:
+     * <p>
+     * 'ac' - automatic confirmed.
+     * <p>
+     * 'ar' - automatic rejected.
+     * <p>
+     *  'mc' - manual confirmed.
+     *
+     * @param sac
+     * @param quakeml
+     * @return
+     */
+    public static List<SacPhasePick> getQuakeMLPhasePicks(SacTimeSeries sac, Quakeml quakeml) {
         Origin origin = null;
         Event event = QuakemlUtils.getFirstEvent(quakeml);
         origin = QuakemlUtils.getPreferredOrigin(event);
@@ -281,20 +397,40 @@ public class SacHeaders {
         List<SacPhasePick> phasePicks = new ArrayList<SacPhasePick>();
 
         for (ArrivalPick pick : picks) {
-            String phaseName = (pick.getArrival().getPhase().getValue() + "      ").substring(0, 6);
+
+            String phaseName = pick.getArrival().getPhase().getValue();
+            String evaluation = "u";
+            String weight = "u";
 
             try {
-                phaseName += (pick.getPick().getEvaluationMode().value().substring(0, 1) + pick.getPick().getEvaluationStatus().value().substring(0, 1));
+                evaluation = (pick.getPick().getEvaluationStatus().value().substring(0, 1));
             } catch (Exception ex) {
-                logger.warning("Found no pick evaluation mode in the quakeml.  Still able to set picks.");
+                logger.warning("Found no pick evaluation status in the quakeml.  Setting to 'u'.");
             }
+
+            if (!evaluation.equalsIgnoreCase("r")) {
+                try {
+                    evaluation = pick.getPick().getEvaluationMode().value().substring(0, 1);
+                }
+                catch  (Exception ex) {
+                    logger.warning("Found no pick evaluation mode in the quakeml.  Setting to 'u'.");
+                }
+            }
+
+            try {
+                weight = String.format("%03d", (int) (pick.getArrival().getWeight() * 100.0d));
+            } catch (Exception ex) {
+                logger.warning("Found no pick weight in the quakeml.  Setting to 'u'." + ex);
+
+            }
+
+            String phaseString = String.format("%s %s %s", phaseName, evaluation, weight);
 
             double arrivalTime = pick.getMillisAfterOrigin() / 1000.0d;
 
-            phasePicks.add(new SacPhasePick(phaseName, arrivalTime));
+            phasePicks.add(new SacPhasePick(phaseString, arrivalTime));
         }
-
-        return SacHeaders.setPhasePicks(sac, phasePicks);
+        return phasePicks;
     }
 
     /**
@@ -309,7 +445,7 @@ public class SacHeaders {
      * @param phasePicks
      * @return
      */
-    public static SacTimeSeries setPhasePicks(SacTimeSeries sac, List<SacPhasePick> phasePicks) {
+    public static SacTimeSeries setHeaderPhasePicks(SacTimeSeries sac, List<SacPhasePick> phasePicks) {
 
         Collections.sort(phasePicks);
 

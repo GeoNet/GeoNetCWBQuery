@@ -7,7 +7,6 @@ package gov.usgs.anss.query.filefactory;
 import edu.sc.seis.TauP.SacTimeSeries;
 import gov.usgs.anss.query.metadata.ChannelMetaData;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import nz.org.geonet.quakeml.v1_0_1.client.QuakemlFactory;
 import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
@@ -247,7 +246,7 @@ public class SacHeadersTest {
 
         SacTimeSeries sac = new SacTimeSeries();
 
-        sac = SacHeaders.setPhasePicks(sac, phasePicks);
+        sac = SacHeaders.setHeaderPhasePicks(sac, phasePicks);
 
         assertEquals("P0", sac.kt0, "P0");
         assertEquals("P0 t", sac.t0, 100.0d, 0.0);
@@ -282,7 +281,7 @@ public class SacHeadersTest {
 
         sac = SacHeaders.setPhasePicks(sac, quakeml);
 
-        assertEquals("P", sac.kt0, "S*    mc");
+        assertEquals("P", sac.kt0, "S* m 028");
         assertEquals("P t", sac.t0, 17.001d, 0.0);
 
         sac = new SacTimeSeries();
