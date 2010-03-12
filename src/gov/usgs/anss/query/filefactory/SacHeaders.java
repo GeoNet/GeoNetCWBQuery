@@ -373,6 +373,8 @@ public class SacHeaders {
      * 'ar' - automatic rejected.
      * <p>
      *  'mc' - manual confirmed.
+     * <p>
+     *  'mr' - manual rejected.
      *
      * @param sac
      * @param quakeml
@@ -399,32 +401,36 @@ public class SacHeaders {
         for (ArrivalPick pick : picks) {
 
             String phaseName = pick.getArrival().getPhase().getValue();
-            String evaluation = "u";
-            String weight = "u";
+            String status = "u";
+            String mode = "u";
 
             try {
-                evaluation = (pick.getPick().getEvaluationStatus().value().substring(0, 1));
+                status = (pick.getPick().getEvaluationStatus().value().substring(0, 1));
             } catch (Exception ex) {
                 logger.warning("Found no pick evaluation status in the quakeml.  Setting to 'u'.");
             }
 
-            if (!evaluation.equalsIgnoreCase("r")) {
-                try {
-                    evaluation = pick.getPick().getEvaluationMode().value().substring(0, 1);
-                }
-                catch  (Exception ex) {
-                    logger.warning("Found no pick evaluation mode in the quakeml.  Setting to 'u'.");
-                }
-            }
-
             try {
-                weight = String.format("%03d", (int) (pick.getArrival().getWeight() * 100.0d));
+                mode = pick.getPick().getEvaluationMode().value().substring(0, 1);
             } catch (Exception ex) {
-                logger.warning("Found no pick weight in the quakeml.  Setting to 'u'." + ex);
+                logger.warning("Found no pick evaluation mode in the quakeml.  Setting to 'u'.");
+            }
+
+            // If the pick has no weight then mark it rejected.
+            // In the GeoNet CUSP case this means the pick
+            // hasn't been 'X'ed but it's residual is so high
+            // that it's not included in the solution.
+            try {
+                Double weight = pick.getArrival().getWeight();
+                if (weight == 0.0) {
+                    status = "r";
+                }
+            } catch (Exception ex) {
+                logger.warning("Found no pick weight in the quakeml.  Status may be incorrect.");
 
             }
 
-            String phaseString = String.format("%s %s %s", phaseName, evaluation, weight);
+            String phaseString = String.format("%s %s%s", phaseName, mode, status);
 
             double arrivalTime = pick.getMillisAfterOrigin() / 1000.0d;
 

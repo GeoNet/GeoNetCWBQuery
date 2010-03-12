@@ -350,7 +350,7 @@ public class SacHeadersSyntheticPhasesTest {
 
         sac = SacHeaders.setPhasePicks(sac, quakeml, false, null);
 
-        assertEquals("pick 0 name", "S* m 028", sac.kt0);
+        assertEquals("pick 0 name", "S* mc", sac.kt0);
         assertEquals("pick 0 time", 17.001, sac.t0, Math.ulp((float) sac.t0));
 
         assertEquals("pick 1 name", "S iasp91", sac.kt1);
@@ -377,7 +377,7 @@ public class SacHeadersSyntheticPhasesTest {
 
         sac = SacHeaders.setPhasePicks(sac, quakeml, false, null);
 
-        assertEquals("pick 0 name", "P* a 095", sac.kt0);
+        assertEquals("pick 0 name", "P* ac", sac.kt0);
         assertEquals("pick 0 time", 16.884, sac.t0, Math.ulp((float) sac.t0));
 
         assertEquals("pick 1 name", "P iasp91", sac.kt1);

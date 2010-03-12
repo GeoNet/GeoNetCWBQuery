@@ -305,7 +305,7 @@ public class SacFileFactoryIntegrationTest {
                     assertEquals("ievtyp", result.ievtyp, expResult.ievtyp);
                     assertEquals("lcalda", result.lcalda, expResult.lcalda);
 
-                    assertEquals("Phase ", result.kt0, expResult.kt0.trim());
+                    assertEquals("Phase ", result.kt0, expResult.kt0);
                     assertEquals("Phase t", result.t0, expResult.t0, 0.001);
                 }
 

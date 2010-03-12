@@ -281,7 +281,7 @@ public class SacHeadersTest {
 
         sac = SacHeaders.setPhasePicks(sac, quakeml);
 
-        assertEquals("P", sac.kt0, "S* m 028");
+        assertEquals("P", sac.kt0, "S* mc");
         assertEquals("P t", sac.t0, 17.001d, 0.0);
 
         sac = new SacTimeSeries();
