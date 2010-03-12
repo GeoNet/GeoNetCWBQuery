@@ -361,7 +361,7 @@
 <distance>226.514</distance>
 <residual>-0.352</residual>
 </arrival>
-<arrival weight="0.06">
+<arrival weight="0.00">
 <pickID>smi:geonet.org.nz/pick/6285887</pickID>
 <phase>P*</phase>
 <azimuth>238</azimuth>

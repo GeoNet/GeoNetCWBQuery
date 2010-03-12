@@ -219,7 +219,7 @@ public class SacHeadersTest {
         assertEquals("e", sac.e, 1.135113e+03, 0.0);
         assertEquals("iztype", sac.iztype, SacTimeSeries.IO);
         assertEquals("lat", sac.evla, eventLat, 0.0);
-        
+
         assertEquals("lon", sac.evlo, eventLon, 0.0);
         assertEquals("dep", sac.evdp, eventDepth, 0.0);
         assertEquals("mag", sac.mag, eventMag, 0.0);
@@ -288,6 +288,22 @@ public class SacHeadersTest {
 
         assertEquals("P", sac.kt0, "-12345  ");
         assertEquals("P t", sac.t0, -12345.0, 0.0);
+    }
+
+    @Test
+    public void testSetPhasePicksXed() throws Exception {
+        // Checks that a pick with zero weight gets a mode of rejected.
+        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersTest.class.getResourceAsStream("quakeml_2732452.xml"), null);
+
+        SacTimeSeries sac = new SacTimeSeries();
+        sac.knetwk = "NZ";
+        sac.kstnm = "HOWZ";
+        sac.kcmpnm = "EHZ";
+
+        sac = SacHeaders.setPhasePicks(sac, quakeml);
+
+        assertEquals("P", sac.kt0, "P* ar");
+        assertEquals("P t", sac.t0, 12.194d, 0.0);
     }
 
     @Test
