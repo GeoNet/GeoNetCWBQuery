@@ -194,7 +194,7 @@ public class EdgeQueryClient {
                     boolean perfStart = true;
                     outtcp.write(line.getBytes());
                     int iblk = 0;
-                    NSCL nscl = NSCL.stringToNSCL("            ");
+                    NSCL nscl = null;
                     boolean eof = false;
                     MiniSeed ms = null;
                     int npur = 0;
