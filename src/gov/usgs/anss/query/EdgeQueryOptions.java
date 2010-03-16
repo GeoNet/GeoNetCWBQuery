@@ -32,6 +32,7 @@ import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 
 /**
  * An attempt to encapsulate (read isolate) EdgeQueryClient command line args.
@@ -61,8 +62,18 @@ public class EdgeQueryOptions {
     }
     private static String beginFormat = "YYYY/MM/dd HH:mm:ss";
     private static String beginFormatDoy = "YYYY,DDD-HH:mm:ss";
-    private static DateTimeFormatter parseBeginFormat = DateTimeFormat.forPattern(beginFormat).withZone(DateTimeZone.forID("UTC"));
-    private static DateTimeFormatter parseBeginFormatDoy = DateTimeFormat.forPattern(beginFormatDoy).withZone(DateTimeZone.forID("UTC"));
+	private static String millisFormat = ".SSS";
+	private static DateTimeFormatter parseMillisFormat = DateTimeFormat.forPattern(millisFormat);
+    private static DateTimeFormatter parseBeginFormat = new DateTimeFormatterBuilder()
+			.appendPattern(beginFormat)
+			.appendOptional(parseMillisFormat.getParser())
+			.toFormatter()
+			.withZone(DateTimeZone.forID("UTC"));
+    private static DateTimeFormatter parseBeginFormatDoy = new DateTimeFormatterBuilder()
+			.appendPattern(beginFormatDoy)
+			.appendOptional(parseMillisFormat.getParser())
+			.toFormatter()
+			.withZone(DateTimeZone.forID("UTC"));
     public String host = QueryProperties.getGeoNetCwbIP();
 
     public void setHost(String host) {
@@ -445,8 +456,10 @@ public class EdgeQueryOptions {
         // TODO Would be ideal if this error contained any range errors from
         // parseDateTime but this is hard with the two attempts at parsing.
         if (begin == null) {
-            throw new IllegalArgumentException("Error parsing begin time.  Allowable formats " +
-                    "are: " + beginFormat + " or " + beginFormatDoy);
+            throw new IllegalArgumentException(
+					"Error parsing begin time.  Allowable formats " +
+                    "are: " + beginFormat + "[" + millisFormat + "] or " +
+					beginFormatDoy + "[" + millisFormat + "]");
         }
     }
 
