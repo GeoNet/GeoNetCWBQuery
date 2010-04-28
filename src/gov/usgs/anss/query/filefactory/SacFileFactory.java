@@ -5,6 +5,7 @@
 package gov.usgs.anss.query.filefactory;
 
 import edu.sc.seis.TauP.SacTimeSeries;
+import gov.usgs.anss.query.CustomEvent;
 import gov.usgs.anss.query.NSCL;
 import gov.usgs.anss.query.ZeroFilledSpan;
 import gov.usgs.anss.query.cwb.data.CWBDataServer;
@@ -32,9 +33,17 @@ import org.joda.time.DateTime;
 public class SacFileFactory {
 
     private static final Logger logger = Logger.getLogger(SacFileFactory.class.getName());
-    private CWBDataServer cwbServer;
-    private MetaDataServer metaDataServer;
-
+    private CWBDataServer cwbServer = null;
+    private MetaDataServer metaDataServer = null;
+    private Quakeml quakeml = null;
+    private String synthetic = null;
+    private CustomEvent customEvent = null;
+    private String pzunit = null;
+    private boolean picks = true;
+    private boolean extendedPhases = false;
+    private boolean gaps = true;
+    private boolean trim = false;
+    private Integer fill = SacTimeSeries.INT_UNDEF;
 
     static {
         logger.fine("$Id$");
@@ -48,13 +57,89 @@ public class SacFileFactory {
         this.metaDataServer = metaDataServer;
     }
 
-    public void makeFiles(DateTime begin, double duration, String nsclSelectString, String mask, Integer fill, boolean gaps, boolean trim, String pzunit, Quakeml quakeml) {
+    public void setQuakeML(Quakeml quakeml) {
+        this.quakeml = quakeml;
+    }
+
+    public void setSynthetic(String synthetic) {
+        this.synthetic = synthetic;
+    }
+
+    public void setCustomEvent(CustomEvent customEvent) {
+        this.customEvent = customEvent;
+    }
+
+    public void setExtendedPhases(boolean extendedPhases) {
+        this.extendedPhases = extendedPhases;
+    }
+
+    public void setFill(Integer fill) {
+        this.fill = fill;
+    }
+
+    public void setGaps(boolean gaps) {
+        this.gaps = gaps;
+    }
+
+    public void setPicks(boolean picks) {
+        this.picks = picks;
+    }
+
+    public void setPzunit(String pzunit) {
+        this.pzunit = pzunit;
+    }
+
+    public void setTrim(boolean trim) {
+        this.trim = trim;
+    }
+
+    public void makeFiles(
+            DateTime begin,
+            double duration,
+            String nsclSelectString,
+            String mask) {
         cwbServer.query(begin, duration, nsclSelectString);
         if (cwbServer.hasNext()) {
             do {
-                SacTimeSeries sac = makeTimeSeries(cwbServer.getNext(), begin, duration, fill, gaps, trim, quakeml);
+                SacTimeSeries sac = makeTimeSeries(
+                        cwbServer.getNext(),
+                        begin,
+                        duration,
+                        this.fill,
+                        this.gaps,
+                        this.trim);
                 if (sac != null) {
-                    outputFile(sac, begin, mask, pzunit);
+                    if (this.quakeml != null) {
+                        SacHeaders.setEventHeader(sac, this.quakeml);
+                        if (this.picks) {
+                            if (this.synthetic == null) {
+                                SacHeaders.setPhasePicks(sac, this.quakeml);
+                            } else {
+                                SacHeaders.setPhasePicks(sac, this.quakeml, this.extendedPhases, this.synthetic);
+                            }
+                        } else {
+                            if (this.synthetic != null) {
+                                SacHeaders.setPhasePicks(sac, this.extendedPhases, this.synthetic);
+                            }
+                        }
+                    } else {
+                        if (this.customEvent != null) {
+                            SacHeaders.setEventHeader(
+                                    sac,
+                                    this.customEvent.getEventTime(),
+                                    this.customEvent.getEventLat(),
+                                    this.customEvent.getEventLon(),
+                                    this.customEvent.getEventDepth(),
+                                    this.customEvent.getEventMag(),
+                                    this.customEvent.getEventMagType().magNum(),
+                                    this.customEvent.getEventType().eventTypeNum());
+                        }
+                        if (this.synthetic != null) {
+                            SacHeaders.setPhasePicks(sac, this.extendedPhases, this.synthetic);
+                        }
+                    }
+
+                    outputFile(sac, begin, mask, this.pzunit);
                 } else {
                     // TODO logger message about null data
                 }
@@ -69,7 +154,13 @@ public class SacFileFactory {
         }
     }
 
-    public SacTimeSeries makeTimeSeries(TreeSet<MiniSeed> miniSeed, DateTime begin, double duration, Integer fill, boolean gaps, boolean trim, Quakeml quakeml) {
+    public SacTimeSeries makeTimeSeries(
+            TreeSet<MiniSeed> miniSeed,
+            DateTime begin,
+            double duration,
+            Integer fill,
+            boolean gaps,
+            boolean trim) {
         // This logic isn't strictly the same as SacOutputter.
         if (!gaps && fill == null) {
             fill = 2147000000;
@@ -107,7 +198,7 @@ public class SacFileFactory {
         // Set the byteOrder based on native architecture and sac statics
         sac.nvhdr = 6;                // Only format supported
         sac.b = 0.;           // beginning time offsed
-        sac.e = ((span.getNsamp() - 1 ) / span.getRate());
+        sac.e = ((span.getNsamp() - 1) / span.getRate());
         sac.iftype = SacTimeSeries.ITIME;
         sac.leven = SacTimeSeries.TRUE;
         sac.delta = (1. / span.getRate());
@@ -133,7 +224,7 @@ public class SacFileFactory {
             sac.y[i] = span.getData(i);
             if (sac.y[i] == fill) {
                 nodata++;
-            //if(nodata <3) logger.finest(i+" nodata len="+span.getNsamp());
+                //if(nodata <3) logger.finest(i+" nodata len="+span.getNsamp());
             }
         }
         if (nodata > 0) {
@@ -152,41 +243,39 @@ public class SacFileFactory {
             sac = SacHeaders.setChannelHeader(sac, md);
         }
 
-        if (quakeml != null) {
-            SacHeaders.setEventHeader(sac, quakeml);
-            SacHeaders.setPhasePicks(sac, quakeml);
-        }
-
         return sac;
     }
 
-
     // TODO: move the getSACResponse to outputPZ or something.
-    protected void outputFile(SacTimeSeries timeSeries, DateTime begin, String mask, String pzunit) {
+    protected void outputFile(
+            SacTimeSeries timeSeries,
+            DateTime begin,
+            String mask,
+            String pzunit) {
 
-		NSCL nscl = new NSCL(timeSeries.knetwk,
-				timeSeries.kstnm,
-				timeSeries.kcmpnm,
-				timeSeries.khole);
+        NSCL nscl = new NSCL(timeSeries.knetwk,
+                timeSeries.kstnm,
+                timeSeries.kcmpnm,
+                timeSeries.khole);
 
-		String filename = Filename.makeFilename(mask, nscl, begin);
-		if (mask.equals("%N")) {
-			filename += ".sac";
-		}
-		filename = filename.replaceAll("[__]", "_");
+        String filename = Filename.makeFilename(mask, nscl, begin);
+        if (mask.equals("%N")) {
+            filename += ".sac";
+        }
+        filename = filename.replaceAll("[__]", "_");
 
-		try {
-			timeSeries.write(filename);
-			if (pzunit != null && metaDataServer != null) {
-				MetaDataQuery mdq = new MetaDataQuery(metaDataServer);
-				mdq.getSACResponse(nscl, begin, pzunit, filename + ".pz");
-			}
-		} catch (FileNotFoundException ex) {
-			Logger.getLogger(SacFileFactory.class.getName()).log(Level.SEVERE,
-					"File not found writing to SAC", ex);
-		} catch (IOException ex) {
-			Logger.getLogger(SacFileFactory.class.getName()).log(Level.SEVERE,
-					"IO exception writing to SAC", ex);
-		}
+        try {
+            timeSeries.write(filename);
+            if (pzunit != null && metaDataServer != null) {
+                MetaDataQuery mdq = new MetaDataQuery(metaDataServer);
+                mdq.getSACResponse(nscl, begin, pzunit, filename + ".pz");
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SacFileFactory.class.getName()).log(Level.SEVERE,
+                    "File not found writing to SAC", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SacFileFactory.class.getName()).log(Level.SEVERE,
+                    "IO exception writing to SAC", ex);
+        }
     }
 }

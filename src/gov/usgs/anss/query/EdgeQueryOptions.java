@@ -113,6 +113,13 @@ public class EdgeQueryOptions {
     public String pzunit = "nm";
     private Quakeml event = null;
     private ReadableDuration offset = null;
+	
+	public boolean picks = true;
+	
+	private String synthetic = null;
+	public boolean extendedPhases = false;
+	
+	private CustomEvent customEvent = null;
 
     /**
      * Parses known args into object fields. Does some argument validation and
@@ -212,7 +219,38 @@ public class EdgeQueryOptions {
             } else if (args[i].equals("-offset")) {
                 setOffset(Double.parseDouble(args[i + 1]));
                 i++;
-            } else {
+			} else if (args[i].equals("-nopicks")) {
+				picks = false;
+			} else if (args[i].startsWith("-synthetic")) {
+                String[] a = args[i].split(":");
+				if (a.length == 2) {
+					setSynthetic(a[1]);
+				} else {
+					setSynthetic("iasp91");
+				}
+			} else if (args[i].equals("-extended-phases")) {
+				extendedPhases = true;
+			} else if (args[i].startsWith("-event:")) {
+				if (getCustomEvent() == null) {
+					setCustomEvent(new CustomEvent());
+				}
+
+				if (args[i].equals("-event:time")) {
+					getCustomEvent().setEventTime(args[++i]);
+				} else if (args[i].equals("-event:lat")) {
+				getCustomEvent().setEventLat(args[++i]);
+				} else if (args[i].equals("-event:lon")) {
+				getCustomEvent().setEventLon(args[++i]);
+				} else if (args[i].equals("-event:depth")) {
+				getCustomEvent().setEventDepth(args[++i]);
+				} else if (args[i].equals("-event:mag")) {
+				getCustomEvent().setEventMag(args[++i]);
+				} else if (args[i].equals("-event:magtype")) {
+				getCustomEvent().setEventMagType(args[++i]);
+				} else if (args[i].equals("-event:type")) {
+					getCustomEvent().setEventType(args[++i]);
+				}
+			}  else {
                 logger.info("Unknown CWB Query argument=" + args[i]);
                 extraArgsList.add(args[i]);
             }
@@ -220,6 +258,34 @@ public class EdgeQueryOptions {
         }
         return extraArgsList;
     }
+
+	/**
+	 * @return the synthetic
+	 */
+	public String getSynthetic() {
+		return synthetic;
+	}
+
+	/**
+	 * @param synthetic the synthetic to set
+	 */
+	public void setSynthetic(String synthetic) {
+		this.synthetic = synthetic;
+	}
+
+	/**
+	 * @return the customEvent
+	 */
+	public CustomEvent getCustomEvent() {
+		return customEvent;
+	}
+
+	/**
+	 * @param customEvent the customEvent to set
+	 */
+	public void setCustomEvent(CustomEvent customEvent) {
+		this.customEvent = customEvent;
+	}
 
     /**
      * Return true if the arguments specified a batch file.
@@ -257,6 +323,11 @@ public class EdgeQueryOptions {
             logger.severe("-msb must be 512 or 4096 and is only meaningful for msz type");
             return false;
         }
+
+		if (getEvent() != null && getCustomEvent() != null) {
+			logger.severe("quakeML event cannot be used in conjunction with custom event parameters.");
+			return false;
+		}
 
         if (getBegin() == null) {
             logger.severe("You must enter a beginning time");
@@ -568,6 +639,8 @@ public class EdgeQueryOptions {
 
         if (begin != null) {
             return begin;
+		} else if (getCustomEvent() != null) {
+			quakeMLBegin = getCustomEvent().getEventTime();
 		} else if (getEvent() != null) {
 			quakeMLBegin = QuakemlUtils.getOriginTime(QuakemlUtils.getPreferredOrigin(QuakemlUtils.getFirstEvent(event)));
         }
@@ -701,4 +774,6 @@ public class EdgeQueryOptions {
             logger.severe("failed to retrieve details for event string " + event);
         }
     }
+
+
 }

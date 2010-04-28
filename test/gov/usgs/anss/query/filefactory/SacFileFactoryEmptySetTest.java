@@ -31,8 +31,7 @@ public class SacFileFactoryEmptySetTest {
 				1800d, //duration
 				new Integer(-12345), //fill
 				true, //gaps
-				true, //trim
-				null //quakml
+				true  //trim
 				);
 
 		assertEquals("expected null", result, expResult);

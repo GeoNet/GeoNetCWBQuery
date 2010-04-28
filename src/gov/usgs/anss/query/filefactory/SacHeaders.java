@@ -300,6 +300,9 @@ public class SacHeaders {
      *<p>
      * Otherwise, if it is not possible to determine if a component is horizontal or vertical
      * a basic set of P and S phases is returned.
+     * <p>
+     * The name of velocity model that the synthetic phases are calculated on is written into
+     * sac.kuser0.
      *<p>
      * For details about the standard velocity models see:
      * http://rses.anu.edu.au/seismology/ak135/ak135f.html http://www.iaspei.org/projects/0903srl_iasp91_Arthur_Snoke.pdf http://books.google.co.nz/books?id=J-TObT4IEiUC&lpg=PA228&ots=PmOxLjcZqi&dq=prem%20seismic%20velocity%20model&pg=PA228#v=onepage&q=prem%20seismic%20velocity%20model&f=false
@@ -311,7 +314,7 @@ public class SacHeaders {
      */
     public static SacTimeSeries setPhasePicks(SacTimeSeries sac, boolean extendedPhaseGroups, String velocityModel) {
         List<SacPhasePick> picks = getSyntheticPhases(sac, extendedPhaseGroups, velocityModel);
-
+        sac.kuser0 = velocityModel;
         return (setHeaderPhasePicks(sac, reduceTriplicatedPhases(picks)));
     }
 
@@ -337,6 +340,9 @@ public class SacHeaders {
      * The following SAC headers must
      * be set for any phases to be calculated: sac.evdp, sac.evla, sac.evlo, sac.stla,
      * sac.stlo
+     * <p>
+     * The name of velocity model that the synthetic phases are calculated on is written into
+     * sac.kuser0.
      *<p>
      * If sac.cmpinc is set for a vertical component then P phases will be returned;<p>
      * for extendedPhaseGroups == false: p, P, Pn, Pdiff, PKP, PKiKP, PKIKP<p>
@@ -357,7 +363,7 @@ public class SacHeaders {
         List<SacPhasePick> picks = reduceTriplicatedPhases(getSyntheticPhases(sac, extendedPhaseGroups, velocityModel));
 
         picks.addAll(getQuakeMLPhasePicks(sac, quakeml));
-
+        sac.kuser0 = velocityModel;
         return (setHeaderPhasePicks(sac, picks));
     }
 
@@ -575,7 +581,7 @@ public class SacHeaders {
         String phaseGroup = "ttbasic";
 
         // Vertical
-        if (sac.cmpinc == 0.0d) {
+        if (sac.cmpinc == 0.0d || sac.cmpinc == 180.0d) {
             if (extendedPhaseGroups) {
                 phaseGroup = "ttp+";
             } else {
@@ -611,6 +617,9 @@ public class SacHeaders {
      *<p>
      * Otherwise, if it is not possible to determine if a component is horizontal or vertical
      * a basic set of P and S phases is returned.
+     * <p>
+     * The name of velocity model that the synthetic phases are calculated on is written into
+     * sac.kuser0.
      *<p>
      * For details about the standard velocity models see:
      * http://rses.anu.edu.au/seismology/ak135/ak135f.html http://www.iaspei.org/projects/0903srl_iasp91_Arthur_Snoke.pdf http://books.google.co.nz/books?id=J-TObT4IEiUC&lpg=PA228&ots=PmOxLjcZqi&dq=prem%20seismic%20velocity%20model&pg=PA228#v=onepage&q=prem%20seismic%20velocity%20model&f=false
@@ -694,7 +703,7 @@ public class SacHeaders {
                 Arrival[] arrivals = taup.getArrivals();
 
                 for (int i = 0; i < arrivals.length; i++) {
-                    sacPhasePicks.add(new SacPhasePick(arrivals[i].getName() + " " + model, arrivals[i].getTime()));
+                    sacPhasePicks.add(new SacPhasePick(arrivals[i].getName(), arrivals[i].getTime()));
                 }
             }
         }

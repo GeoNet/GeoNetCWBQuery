@@ -52,7 +52,7 @@ public class ChannelMetaDataTest {
     @Test
     public void testGetStationMetaData() {
 
-        metaDataServer.loadPAZFile(new String[]{"/test-data/gov/usgs/anss/query/metadata/NZWEL__HHZ10.sac.pz",});
+        metaDataServer.loadPAZFile(new String[]{"NZWEL  HHZ10"}, new String[]{"/test-data/gov/usgs/anss/query/metadata/NZWEL__HHZ10.sac.pz"});
 
         ChannelMetaData md = mdq.getChannelMetaData(new NSCL("NZ", "WEL  ", "HHZ", "10"),
                 new DateTime(2009, 1, 1, 11, 11, 11, 0, tz));
@@ -69,7 +69,7 @@ public class ChannelMetaDataTest {
 
     @Test
     public void testGetStationMetaDataNull() {
-        metaDataServer.loadPAZFile(new String[]{""});
+        metaDataServer.loadPAZFile(new String[]{"NZWEL  HHZ10"}, new String[]{"/test-data/gov/usgs/anss/query/metadata/NZWEL__HHZ10.sac.pz"});
         ChannelMetaData md = mdq.getChannelMetaData(new NSCL("NZ", "ZZZZZ", "HHZ", "10"),
                 new DateTime(2009, 1, 1, 11, 11, 11, 0, tz));
         assertTrue("Network ", md.getNetwork().equals("NZ"));

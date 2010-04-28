@@ -9,8 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.joda.time.DateTime;
@@ -21,8 +21,7 @@ import org.joda.time.DateTime;
  */
 public class MetaDataServerMock implements MetaDataServer {
 
-    private ArrayList<String> responses;
-    private Iterator<String> iter;
+    Map<String, String> responses;
 
     /**
      * Mock for meta data server testing.  No server is actually contacted.
@@ -40,10 +39,15 @@ public class MetaDataServerMock implements MetaDataServer {
      *
      * @param filenames
      */
-    public void loadPAZFile(String[] filenames) {
-        responses = new ArrayList<String>();
+    public void loadPAZFile(String[] nscls, String[] filenames) {
 
-        for (String filename : filenames) {
+        responses = new HashMap<String, String>();
+
+        for (int i = 0; i < nscls.length; i++) {
+            String filename = filenames[i];
+            String nscl = nscls[i];
+
+
             StringBuilder contents = new StringBuilder();
 
             InputStream in = MetaDataServerMock.class.getResourceAsStream(filename);
@@ -64,10 +68,9 @@ public class MetaDataServerMock implements MetaDataServer {
                     }
                 }
             }
-        
-            responses.add(contents.toString());
+
+            responses.put(nscl, contents.toString());
         }
-        iter = responses.listIterator();
     }
 
     /**
@@ -80,6 +83,6 @@ public class MetaDataServerMock implements MetaDataServer {
      * @return
      */
     public String getResponseData(NSCL nscl, DateTime date, String units) {
-        return iter.next();
+        return responses.containsKey(nscl.toString()) ?  responses.get(nscl.toString()) : "";
     }
 }

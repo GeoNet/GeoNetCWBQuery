@@ -46,13 +46,13 @@ public class SacHeadersSyntheticPhasesTest {
     public void testGetSyntheticPhasesVerticalComponent() {
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("P iasp91", 22.390350136363693));
-        expected.add(new SacPhasePick("Pn iasp91", 22.391044325111253));
-        expected.add(new SacPhasePick("P iasp91", 22.833306118473626));
-        expected.add(new SacPhasePick("P iasp91", 23.508144460604914));
-        expected.add(new SacPhasePick("p iasp91", 23.899170974844367));
-        expected.add(new SacPhasePick("P iasp91", 23.993632868688543));
-        expected.add(new SacPhasePick("PKiKP iasp91", 991.5016026786577));
+        expected.add(new SacPhasePick("P", 22.390350136363693));
+        expected.add(new SacPhasePick("Pn", 22.391044325111253));
+        expected.add(new SacPhasePick("P", 22.833306118473626));
+        expected.add(new SacPhasePick("P", 23.508144460604914));
+        expected.add(new SacPhasePick("p", 23.899170974844367));
+        expected.add(new SacPhasePick("P", 23.993632868688543));
+        expected.add(new SacPhasePick("PKiKP", 991.5016026786577));
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, null);
@@ -63,13 +63,13 @@ public class SacHeadersSyntheticPhasesTest {
     public void testGetSyntheticPhasesVerticalComponentIasp91() {
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("P iasp91", 22.390350136363693));
-        expected.add(new SacPhasePick("Pn iasp91", 22.391044325111253));
-        expected.add(new SacPhasePick("P iasp91", 22.833306118473626));
-        expected.add(new SacPhasePick("P iasp91", 23.508144460604914));
-        expected.add(new SacPhasePick("p iasp91", 23.899170974844367));
-        expected.add(new SacPhasePick("P iasp91", 23.993632868688543));
-        expected.add(new SacPhasePick("PKiKP iasp91", 991.5016026786577));
+        expected.add(new SacPhasePick("P", 22.390350136363693));
+        expected.add(new SacPhasePick("Pn", 22.391044325111253));
+        expected.add(new SacPhasePick("P", 22.833306118473626));
+        expected.add(new SacPhasePick("P", 23.508144460604914));
+        expected.add(new SacPhasePick("p", 23.899170974844367));
+        expected.add(new SacPhasePick("P", 23.993632868688543));
+        expected.add(new SacPhasePick("PKiKP", 991.5016026786577));
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, "iasp91");
@@ -80,11 +80,11 @@ public class SacHeadersSyntheticPhasesTest {
     public void testGetSyntheticPhasesVerticalComponentPrem() {
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("P prem", 19.989381543745672));
-        expected.add(new SacPhasePick("Pn prem", 19.990032166825504));
-        expected.add(new SacPhasePick("p prem", 21.548613158370102));
-        expected.add(new SacPhasePick("P prem", 21.699585194403593));
-        expected.add(new SacPhasePick("PKiKP prem", 988.9516669274939));
+        expected.add(new SacPhasePick("P", 19.989381543745672));
+        expected.add(new SacPhasePick("Pn", 19.990032166825504));
+        expected.add(new SacPhasePick("p", 21.548613158370102));
+        expected.add(new SacPhasePick("P", 21.699585194403593));
+        expected.add(new SacPhasePick("PKiKP", 988.9516669274939));
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, "prem");
@@ -95,13 +95,13 @@ public class SacHeadersSyntheticPhasesTest {
     public void testGetSyntheticPhasesVerticalComponentAk135() {
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("P ak135", 22.39035013636366));
-        expected.add(new SacPhasePick("Pn ak135", 22.391044325111217));
-        expected.add(new SacPhasePick("P ak135", 22.83330611847372));
-        expected.add(new SacPhasePick("P ak135", 23.509910605502245));
-        expected.add(new SacPhasePick("p ak135", 23.899480850195985));
-        expected.add(new SacPhasePick("P ak135", 24.001451375125665));
-        expected.add(new SacPhasePick("PKiKP ak135", 991.7118920250937));
+        expected.add(new SacPhasePick("P", 22.39035013636366));
+        expected.add(new SacPhasePick("Pn", 22.391044325111217));
+        expected.add(new SacPhasePick("P", 22.83330611847372));
+        expected.add(new SacPhasePick("P", 23.509910605502245));
+        expected.add(new SacPhasePick("p", 23.899480850195985));
+        expected.add(new SacPhasePick("P", 24.001451375125665));
+        expected.add(new SacPhasePick("PKiKP", 991.7118920250937));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, "ak135");
         assertEquals("Didn't get expected picks.", expected, result);
@@ -116,25 +116,25 @@ public class SacHeadersSyntheticPhasesTest {
     public void testGetSyntheticPhasesExtendedVerticalComponent() {
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("P iasp91", 22.390350136363693d));
-        expected.add(new SacPhasePick("Pn iasp91", 22.391044325111253d));
-        expected.add(new SacPhasePick("P iasp91", 22.833306118473626d));
-        expected.add(new SacPhasePick("P iasp91", 23.508144460604914d));
-        expected.add(new SacPhasePick("p iasp91", 23.899170974844367d));
-        expected.add(new SacPhasePick("P iasp91", 23.993632868688543d));
-        expected.add(new SacPhasePick("pP iasp91", 25.646257200426277d));
-        expected.add(new SacPhasePick("pP iasp91", 25.714030216184245d));
-        expected.add(new SacPhasePick("pP iasp91", 26.695250744217986d));
-        expected.add(new SacPhasePick("pP iasp91", 26.970571965556022d));
-        expected.add(new SacPhasePick("sP iasp91", 28.079749973621787d));
-        expected.add(new SacPhasePick("sP iasp91", 28.8149515070317d));
-        expected.add(new SacPhasePick("sP iasp91", 29.123366881076567d));
-        expected.add(new SacPhasePick("sP iasp91", 29.399448796704572d));
-        expected.add(new SacPhasePick("sP iasp91", 29.86831462479237d));
-        expected.add(new SacPhasePick("PcP iasp91", 508.2546124540107d));
-        expected.add(new SacPhasePick("PKiKP iasp91", 991.5016026786577d));
-        expected.add(new SacPhasePick("pPKiKP iasp91", 997.6899704375961d));
-        expected.add(new SacPhasePick("sPKiKP iasp91", 999.9369439264844d));
+        expected.add(new SacPhasePick("P", 22.390350136363693d));
+        expected.add(new SacPhasePick("Pn", 22.391044325111253d));
+        expected.add(new SacPhasePick("P", 22.833306118473626d));
+        expected.add(new SacPhasePick("P", 23.508144460604914d));
+        expected.add(new SacPhasePick("p", 23.899170974844367d));
+        expected.add(new SacPhasePick("P", 23.993632868688543d));
+        expected.add(new SacPhasePick("pP", 25.646257200426277d));
+        expected.add(new SacPhasePick("pP", 25.714030216184245d));
+        expected.add(new SacPhasePick("pP", 26.695250744217986d));
+        expected.add(new SacPhasePick("pP", 26.970571965556022d));
+        expected.add(new SacPhasePick("sP", 28.079749973621787d));
+        expected.add(new SacPhasePick("sP", 28.8149515070317d));
+        expected.add(new SacPhasePick("sP", 29.123366881076567d));
+        expected.add(new SacPhasePick("sP", 29.399448796704572d));
+        expected.add(new SacPhasePick("sP", 29.86831462479237d));
+        expected.add(new SacPhasePick("PcP", 508.2546124540107d));
+        expected.add(new SacPhasePick("PKiKP", 991.5016026786577d));
+        expected.add(new SacPhasePick("pPKiKP", 997.6899704375961d));
+        expected.add(new SacPhasePick("sPKiKP", 999.9369439264844d));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, true, null);
         assertEquals("Didn't get expected picks.", expected, result);
@@ -146,12 +146,12 @@ public class SacHeadersSyntheticPhasesTest {
         sac.cmpinc = 90.0d;
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("S iasp91", 39.336879719734235));
-        expected.add(new SacPhasePick("Sn iasp91", 39.337656666113965));
-        expected.add(new SacPhasePick("S iasp91", 39.518038256462916));
-        expected.add(new SacPhasePick("S iasp91", 40.69713316858711));
-        expected.add(new SacPhasePick("s iasp91", 41.25364884040999));
-        expected.add(new SacPhasePick("S iasp91", 41.42226956863093));
+        expected.add(new SacPhasePick("S", 39.336879719734235));
+        expected.add(new SacPhasePick("Sn", 39.337656666113965));
+        expected.add(new SacPhasePick("S", 39.518038256462916));
+        expected.add(new SacPhasePick("S", 40.69713316858711));
+        expected.add(new SacPhasePick("s", 41.25364884040999));
+        expected.add(new SacPhasePick("S", 41.42226956863093));
 
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, null);
@@ -163,17 +163,17 @@ public class SacHeadersSyntheticPhasesTest {
         sac.cmpinc = 90.0d;
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("S iasp91", 39.336879719734235));
-        expected.add(new SacPhasePick("Sn iasp91", 39.337656666113965));
-        expected.add(new SacPhasePick("S iasp91", 39.518038256462916));
-        expected.add(new SacPhasePick("S iasp91", 40.69713316858711));
-        expected.add(new SacPhasePick("s iasp91", 41.25364884040999));
-        expected.add(new SacPhasePick("S iasp91", 41.42226956863093));
-        expected.add(new SacPhasePick("sS iasp91", 44.29531965722775));
-        expected.add(new SacPhasePick("sS iasp91", 44.38746778298414));
-        expected.add(new SacPhasePick("sS iasp91", 46.419921436590144));
-        expected.add(new SacPhasePick("sS iasp91", 46.63650532570043));
-        expected.add(new SacPhasePick("ScS iasp91", 930.358728616058));
+        expected.add(new SacPhasePick("S", 39.336879719734235));
+        expected.add(new SacPhasePick("Sn", 39.337656666113965));
+        expected.add(new SacPhasePick("S", 39.518038256462916));
+        expected.add(new SacPhasePick("S", 40.69713316858711));
+        expected.add(new SacPhasePick("s", 41.25364884040999));
+        expected.add(new SacPhasePick("S", 41.42226956863093));
+        expected.add(new SacPhasePick("sS", 44.29531965722775));
+        expected.add(new SacPhasePick("sS", 44.38746778298414));
+        expected.add(new SacPhasePick("sS", 46.419921436590144));
+        expected.add(new SacPhasePick("sS", 46.63650532570043));
+        expected.add(new SacPhasePick("ScS", 930.358728616058));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, true, null);
         assertEquals("Didn't get expected picks.", expected, result);
@@ -191,42 +191,42 @@ public class SacHeadersSyntheticPhasesTest {
 
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("P iasp91", 22.390350136363693));
-        expected.add(new SacPhasePick("Pn iasp91", 22.391044325111253));
-        expected.add(new SacPhasePick("P iasp91", 22.833306118473626));
-        expected.add(new SacPhasePick("P iasp91", 23.508144460604914));
-        expected.add(new SacPhasePick("p iasp91", 23.899170974844367));
-        expected.add(new SacPhasePick("P iasp91", 23.993632868688543));
-        expected.add(new SacPhasePick("pP iasp91", 25.646257200426277));
-        expected.add(new SacPhasePick("pP iasp91", 25.714030216184245));
-        expected.add(new SacPhasePick("PP iasp91", 25.966209035371627));
-        expected.add(new SacPhasePick("PP iasp91", 25.995564026206477));
-        expected.add(new SacPhasePick("pP iasp91", 26.695250744217986));
-        expected.add(new SacPhasePick("pP iasp91", 26.970571965556022));
-        expected.add(new SacPhasePick("sP iasp91", 28.079749973621787));
-        expected.add(new SacPhasePick("sP iasp91", 28.8149515070317));
-        expected.add(new SacPhasePick("sP iasp91", 29.123366881076567));
-        expected.add(new SacPhasePick("sP iasp91", 29.399448796704572));
-        expected.add(new SacPhasePick("sP iasp91", 29.86831462479237));
-        expected.add(new SacPhasePick("S iasp91", 39.336879719734235));
-        expected.add(new SacPhasePick("Sn iasp91", 39.337656666113965));
-        expected.add(new SacPhasePick("S iasp91", 39.518038256462916));
-        expected.add(new SacPhasePick("S iasp91", 40.69713316858711));
-        expected.add(new SacPhasePick("s iasp91", 41.25364884040999));
-        expected.add(new SacPhasePick("S iasp91", 41.42226956863093));
-        expected.add(new SacPhasePick("sS iasp91", 44.29531965722775));
-        expected.add(new SacPhasePick("sS iasp91", 44.38746778298414));
-        expected.add(new SacPhasePick("sS iasp91", 46.419921436590144));
-        expected.add(new SacPhasePick("sS iasp91", 46.63650532570043));
-        expected.add(new SacPhasePick("PcP iasp91", 508.2546124540107));
-        expected.add(new SacPhasePick("ScP iasp91", 718.1704736019561));
-        expected.add(new SacPhasePick("ScS iasp91", 930.358728616058));
-        expected.add(new SacPhasePick("PKiKP iasp91", 991.5016026786577));
-        expected.add(new SacPhasePick("pPKiKP iasp91", 997.6899704375961));
-        expected.add(new SacPhasePick("sPKiKP iasp91", 999.9369439264844));
-        expected.add(new SacPhasePick("PKIKKIKP iasp91", 1909.7764102162655));
-        expected.add(new SacPhasePick("SKIKKIKP iasp91", 2119.67917397117));
-        expected.add(new SacPhasePick("PKIKPPKIKP iasp91", 2421.0362718423635));
+        expected.add(new SacPhasePick("P", 22.390350136363693));
+        expected.add(new SacPhasePick("Pn", 22.391044325111253));
+        expected.add(new SacPhasePick("P", 22.833306118473626));
+        expected.add(new SacPhasePick("P", 23.508144460604914));
+        expected.add(new SacPhasePick("p", 23.899170974844367));
+        expected.add(new SacPhasePick("P", 23.993632868688543));
+        expected.add(new SacPhasePick("pP", 25.646257200426277));
+        expected.add(new SacPhasePick("pP", 25.714030216184245));
+        expected.add(new SacPhasePick("PP", 25.966209035371627));
+        expected.add(new SacPhasePick("PP", 25.995564026206477));
+        expected.add(new SacPhasePick("pP", 26.695250744217986));
+        expected.add(new SacPhasePick("pP", 26.970571965556022));
+        expected.add(new SacPhasePick("sP", 28.079749973621787));
+        expected.add(new SacPhasePick("sP", 28.8149515070317));
+        expected.add(new SacPhasePick("sP", 29.123366881076567));
+        expected.add(new SacPhasePick("sP", 29.399448796704572));
+        expected.add(new SacPhasePick("sP", 29.86831462479237));
+        expected.add(new SacPhasePick("S", 39.336879719734235));
+        expected.add(new SacPhasePick("Sn", 39.337656666113965));
+        expected.add(new SacPhasePick("S", 39.518038256462916));
+        expected.add(new SacPhasePick("S", 40.69713316858711));
+        expected.add(new SacPhasePick("s", 41.25364884040999));
+        expected.add(new SacPhasePick("S", 41.42226956863093));
+        expected.add(new SacPhasePick("sS", 44.29531965722775));
+        expected.add(new SacPhasePick("sS", 44.38746778298414));
+        expected.add(new SacPhasePick("sS", 46.419921436590144));
+        expected.add(new SacPhasePick("sS", 46.63650532570043));
+        expected.add(new SacPhasePick("PcP", 508.2546124540107));
+        expected.add(new SacPhasePick("ScP", 718.1704736019561));
+        expected.add(new SacPhasePick("ScS", 930.358728616058));
+        expected.add(new SacPhasePick("PKiKP", 991.5016026786577));
+        expected.add(new SacPhasePick("pPKiKP", 997.6899704375961));
+        expected.add(new SacPhasePick("sPKiKP", 999.9369439264844));
+        expected.add(new SacPhasePick("PKIKKIKP", 1909.7764102162655));
+        expected.add(new SacPhasePick("SKIKKIKP", 2119.67917397117));
+        expected.add(new SacPhasePick("PKIKPPKIKP", 2421.0362718423635));
 
         List<SacPhasePick> result = SacHeaders.getSyntheticPhases(sac, false, null);
         assertEquals("Didn't get expected picks.", expected, result);
@@ -239,25 +239,25 @@ public class SacHeadersSyntheticPhasesTest {
     public void testGetSyntheticPhasesReduceTriplicatedPhases() {
         List<SacPhasePick> input = new ArrayList<SacPhasePick>();
 
-        input.add(new SacPhasePick("S iasp91", 39.336879719734235));
-        input.add(new SacPhasePick("Sn iasp91", 39.337656666113965));
-        input.add(new SacPhasePick("S iasp91", 39.518038256462916));
-        input.add(new SacPhasePick("S iasp91", 40.69713316858711));
-        input.add(new SacPhasePick("s iasp91", 41.25364884040999));
-        input.add(new SacPhasePick("S iasp91", 41.42226956863093));
-        input.add(new SacPhasePick("sS iasp91", 44.29531965722775));
-        input.add(new SacPhasePick("sS iasp91", 44.38746778298414));
-        input.add(new SacPhasePick("sS iasp91", 46.419921436590144));
-        input.add(new SacPhasePick("sS iasp91", 46.63650532570043));
-        input.add(new SacPhasePick("ScS iasp91", 930.358728616058));
+        input.add(new SacPhasePick("S", 39.336879719734235));
+        input.add(new SacPhasePick("Sn", 39.337656666113965));
+        input.add(new SacPhasePick("S", 39.518038256462916));
+        input.add(new SacPhasePick("S", 40.69713316858711));
+        input.add(new SacPhasePick("s", 41.25364884040999));
+        input.add(new SacPhasePick("S", 41.42226956863093));
+        input.add(new SacPhasePick("sS", 44.29531965722775));
+        input.add(new SacPhasePick("sS", 44.38746778298414));
+        input.add(new SacPhasePick("sS", 46.419921436590144));
+        input.add(new SacPhasePick("sS", 46.63650532570043));
+        input.add(new SacPhasePick("ScS", 930.358728616058));
 
         List<SacPhasePick> expected = new ArrayList<SacPhasePick>();
 
-        expected.add(new SacPhasePick("S iasp91", 39.336879719734235));
-        expected.add(new SacPhasePick("Sn iasp91", 39.337656666113965));
-        expected.add(new SacPhasePick("s iasp91", 41.25364884040999));
-        expected.add(new SacPhasePick("sS iasp91", 44.29531965722775));
-        expected.add(new SacPhasePick("ScS iasp91", 930.358728616058));
+        expected.add(new SacPhasePick("S", 39.336879719734235));
+        expected.add(new SacPhasePick("Sn", 39.337656666113965));
+        expected.add(new SacPhasePick("s", 41.25364884040999));
+        expected.add(new SacPhasePick("sS", 44.29531965722775));
+        expected.add(new SacPhasePick("ScS", 930.358728616058));
 
         List<SacPhasePick> result = SacHeaders.reduceTriplicatedPhases(input);
 
@@ -303,16 +303,16 @@ public class SacHeadersSyntheticPhasesTest {
     public void testSetSyntheticPicksVertical() {
         sac = SacHeaders.setPhasePicks(sac, false, null);
 
-        assertEquals("pick 0 name", "P iasp91", sac.kt0);
+        assertEquals("pick 0 name", "P", sac.kt0);
         assertEquals("pick 0 time", 22.390350136363693, sac.t0, Math.ulp((float) sac.t0));
 
-        assertEquals("pick 1 name", "Pn iasp91", sac.kt1);
+        assertEquals("pick 1 name", "Pn", sac.kt1);
         assertEquals("pick 1 time", 22.391044325111253, sac.t1, Math.ulp((float) sac.t1));
 
-        assertEquals("pick 2 name", "p iasp91", sac.kt2);
+        assertEquals("pick 2 name", "p", sac.kt2);
         assertEquals("pick 2 time", 23.899170974844367, sac.t2, Math.ulp((float) sac.t2));
 
-        assertEquals("pick 3 name", "PKiKP iasp91", sac.kt3);
+        assertEquals("pick 3 name", "PKiKP", sac.kt3);
         assertEquals("pick 3 time", 991.5016026786577, sac.t3, Math.ulp((float) sac.t3));
 
         assertEquals("pick 4 name", "-12345  ", sac.kt4);
@@ -324,13 +324,13 @@ public class SacHeadersSyntheticPhasesTest {
         sac.cmpinc = 90.0d;
         sac = SacHeaders.setPhasePicks(sac, false, null);
 
-        assertEquals("pick 0 name", "S iasp91", sac.kt0);
+        assertEquals("pick 0 name", "S", sac.kt0);
         assertEquals("pick 0 time", 39.336879719734235, sac.t0, Math.ulp((float) sac.t0));
 
-        assertEquals("pick 1 name", "Sn iasp91", sac.kt1);
+        assertEquals("pick 1 name", "Sn", sac.kt1);
         assertEquals("pick 1 time", 39.337656666113965, sac.t1, Math.ulp((float) sac.t1));
 
-        assertEquals("pick 2 name", "s iasp91", sac.kt2);
+        assertEquals("pick 2 name", "s", sac.kt2);
         assertEquals("pick 2 time", 41.25364884040999, sac.t2, Math.ulp((float) sac.t2));
 
         assertEquals("pick 3 name", "-12345  ", sac.kt3);
@@ -353,13 +353,13 @@ public class SacHeadersSyntheticPhasesTest {
         assertEquals("pick 0 name", "S* mc", sac.kt0);
         assertEquals("pick 0 time", 17.001, sac.t0, Math.ulp((float) sac.t0));
 
-        assertEquals("pick 1 name", "S iasp91", sac.kt1);
+        assertEquals("pick 1 name", "S", sac.kt1);
         assertEquals("pick 1 time", 39.336879719734235, sac.t1, Math.ulp((float) sac.t1));
 
-        assertEquals("pick 2 name", "Sn iasp91", sac.kt2);
+        assertEquals("pick 2 name", "Sn", sac.kt2);
         assertEquals("pick 2 time", 39.337656666113965, sac.t2, Math.ulp((float) sac.t2));
 
-        assertEquals("pick 3 name", "s iasp91", sac.kt3);
+        assertEquals("pick 3 name", "s", sac.kt3);
         assertEquals("pick 3 time", 41.25364884040999, sac.t3, Math.ulp((float) sac.t3));
 
         assertEquals("pick 4 name", "-12345  ", sac.kt4);
@@ -380,16 +380,16 @@ public class SacHeadersSyntheticPhasesTest {
         assertEquals("pick 0 name", "P* ac", sac.kt0);
         assertEquals("pick 0 time", 16.884, sac.t0, Math.ulp((float) sac.t0));
 
-        assertEquals("pick 1 name", "P iasp91", sac.kt1);
+        assertEquals("pick 1 name", "P", sac.kt1);
         assertEquals("pick 1 time", 22.390350136363693, sac.t1, Math.ulp((float) sac.t1));
 
-        assertEquals("pick 2 name", "Pn iasp91", sac.kt2);
+        assertEquals("pick 2 name", "Pn", sac.kt2);
         assertEquals("pick 2 time", 22.391044325111253, sac.t2, Math.ulp((float) sac.t2));
 
-        assertEquals("pick 3 name", "p iasp91", sac.kt3);
+        assertEquals("pick 3 name", "p", sac.kt3);
         assertEquals("pick 3 time", 23.899170974844367, sac.t3, Math.ulp((float) sac.t3));
 
-        assertEquals("pick 4 name", "PKiKP iasp91", sac.kt4);
+        assertEquals("pick 4 name", "PKiKP", sac.kt4);
         assertEquals("pick 4 time", 991.5016026786577, sac.t4, Math.ulp((float) sac.t4));
 
         assertEquals("pick 5 name", "-12345  ", sac.kt5);
