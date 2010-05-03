@@ -27,7 +27,7 @@
 
         <conf name="foride" visibility="private" description="this configuration contains the source and/or javadoc artifacts of this modules dependecies for use to provide documentation in IDE."/>
 
-        <conf name="optional" visibility="private" description="contains all optional dependencies."/>
+        <conf name="optional" visibility="public" description="contains all optional dependencies."/>
         
         <conf name="build" visibility="private" description="contains all build time dependencies."/>
 
