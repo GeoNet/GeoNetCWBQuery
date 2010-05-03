@@ -36,6 +36,40 @@
     <target name="-do-ivy-init" if="ivy.needs.init">
         <antcall target="setup-nb-build-environment"/>
     </target>
+    
+    <target name="jar" depends="CWBQuery-impl.jar"
+        description="initialises and runs the proguard configuration for this project.">
+        <path id="proguard.classpath">
+            <fileset dir="${ivy.lib.dir}">
+                <include name="**/proguard*.jar"/>
+            </fileset>
+        </path>
+        <taskdef resource="proguard/ant/task.properties" classpathref="proguard.classpath"/>
+
+        <!-- Only unjar the class files. -->
+        <unjar dest="${build.classes.dir}">
+            <patternset>
+                <include name="**/*.class"/>
+            </patternset>
+            <fileset dir="${ivy.lib.dir}">
+                <include name="runtime/*.jar"/>
+            </fileset>
+        </unjar>
+
+        <!-- Keep the project manifest file. -->
+        <copy file="${manifest.file}" tofile="${build.classes.dir}/META-INF/MANIFEST.MF"/>
+
+        <proguard configuration="${basedir}/proguard.pro">
+            <injar path="${build.classes.dir}"/>
+            <outjar path="${dist.dir}/${application.title}-bin.jar"/>
+            <libraryjar path="${env.JAVA_HOME}/jre/lib/rt.jar"/>
+            <libraryjar>
+                <fileset dir="${ivy.lib.dir}">
+                    <include name="provided/*.jar"/>
+                </fileset>
+            </libraryjar>
+        </proguard>
+    </target>
 
 
     <!--
