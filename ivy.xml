@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd" xmlns:m="http://ant.apache.org/ivy/maven">
 
-    <info organisation="nz.org.geonet" module="GeoNetCWBQuery" revision="2.2."/>
+    <info organisation="nz.org.geonet" module="GeoNetCWBQuery" revision="2.2.">
+        <license name="GNU GENERAL PUBLIC LICENSE Version 3"
+            url="http://www.gnu.org/licenses/gpl-3.0.txt"/>
+        <repository name="codegeo.org - Apache Archiva" url="http://codegeo.org/archiva"/>
+        <description homepage="http://codegeo.org/confluence/display/cwb/GeoNetCWBQuery">
+            Waveforms in a CWB (Common Waveform Buffer) data repository can be accessed using this Java client.
+            The client processes these data on your computer and produces files in MiniSEED, SAC or plain text formats.
+        </description>
+    </info>
 
     <configurations>
 
