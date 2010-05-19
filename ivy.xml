@@ -57,7 +57,7 @@
 
         <dependency org="joda-time" name="joda-time" rev="1.6" conf="compile->default;foride->sources" />
 
-        <dependency org="nz.org.geonet" name="jquakeml-1.0.1" rev="latest." conf="compile->default;foride->sources" />
+        <dependency org="nz.org.geonet" name="jquakeml-1.0.1" rev="latest.milestone" conf="compile->default;foride->sources" />
 
         <dependency org="TauP" name="TauP-no-sac-timeseries" rev="1.1.7" conf="compile->default" />
 
@@ -71,7 +71,7 @@
 
         <dependency org="gsbase" name="gsbase" rev="2.0.1" conf="test->default"/>
 
-        <dependency org="com.cenqua.clover" name="clover" rev="latest." conf="optional->default"/>
+        <dependency org="com.cenqua.clover" name="clover" rev="latest.release" conf="optional->default"/>
         
         <dependency org="net.sf.proguard" name="proguard" rev="[3.5,)" conf="build->default"/>
 
