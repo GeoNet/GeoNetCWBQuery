@@ -41,6 +41,14 @@ public class QueryProperties {
         return Integer.parseInt(props.getString("geonet-cwb-port"));
     }
 
+    public static String getGeoNetMetadataServerIP() {
+        return props.getString("geonet-metadata-server-ip");
+    }
+
+    public static int getGeoNetMetadataServerPort() {
+        return Integer.parseInt(props.getString("geonet-metadata-server-port"));
+    }
+
     public static String getNeicCwbIP() {
         return props.getString("neic-cwb-ip");
     }

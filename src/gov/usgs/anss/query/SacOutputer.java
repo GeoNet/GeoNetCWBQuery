@@ -49,8 +49,8 @@ public class SacOutputer extends Outputer {
         this.cwbServer = new CWBDataServerMSEED(options.host, options.port);
         sacFF.setCWBDataServer(this.cwbServer);
         sacFF.setMetaDataServer(new MetaDataServerImpl(
-                QueryProperties.getNeicMetadataServerIP(),
-                QueryProperties.getNeicMetadataServerPort()));
+                QueryProperties.getGeoNetMetadataServerIP(),
+                QueryProperties.getGeoNetMetadataServerPort()));
         parseExtras(options);
     }
 
