@@ -71,10 +71,10 @@
         </proguard>
     </target>
     
-    <target name="-pre-compile" depends="clover.init"/>
-    <target name="-pre-compile-single" depends="clover.init"/>
-    <target name="-pre-compile-test" depends="clover.init"/>
-    <target name="-pre-compile-test-single" depends="clover.init"/>
+    <target name="-pre-compile" depends="clover.init,-init-macrodef-clover-optimized-junit"/>
+    <target name="-pre-compile-single" depends="clover.init,-init-macrodef-clover-optimized-junit"/>
+    <target name="-pre-compile-test" depends="clover.init,-init-macrodef-clover-optimized-junit"/>
+    <target name="-pre-compile-test-single" depends="clover.init,-init-macrodef-clover-optimized-junit"/>
 
 
     <!--
