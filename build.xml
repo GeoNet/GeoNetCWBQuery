@@ -48,9 +48,6 @@
 
         <!-- Only unjar the class files. -->
         <unjar dest="${build.classes.dir}">
-            <patternset>
-                <include name="**/*.class"/>
-            </patternset>
             <fileset dir="${ivy.lib.dir}">
                 <include name="runtime/*.jar"/>
             </fileset>
