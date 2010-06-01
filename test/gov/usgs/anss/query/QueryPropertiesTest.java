@@ -41,8 +41,22 @@ public class QueryPropertiesTest {
 
     @Test
     public void testGetGeoNetCwbPort() {
-        int expResult = 80;
+        int expResult = 2061;
         int result = QueryProperties.getGeoNetCwbPort();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetGeoNetMetadataServerIP() {
+        String expResult = "cwb.geonet.org.nz";
+        String result = QueryProperties.getGeoNetMetadataServerIP();
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testGetGeoNetMetadataServerPort() {
+        int expResult = 2052;
+        int result = QueryProperties.getGeoNetMetadataServerPort();
         assertEquals(expResult, result);
     }
 

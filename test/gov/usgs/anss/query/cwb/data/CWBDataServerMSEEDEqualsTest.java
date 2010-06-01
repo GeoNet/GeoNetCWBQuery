@@ -27,7 +27,7 @@ public class CWBDataServerMSEEDEqualsTest extends TestCase {
 	public void testEquals() {
 
 		String hostA = "cwb.geonet.org.nz";
-		int portA = 80;
+		int portA = 2061;
 
 		String hostB = "cwb-pub.cr.usgs.gov";
 		int portB = 2061;
