@@ -220,7 +220,11 @@ public class SacHeaders {
             logger.warning("Found no magnitude definition setting to unknown.");
         }
         if (mag != null) {
+            if ( mag.getMag() != null) {
             magnitude = mag.getMag().getValue();
+            } else {
+                magnitude = -12345.0;
+            }
             magType = sacMagType(mag.getType());
         } else {
             logger.warning("Found no magnitude definition setting to unknown.");

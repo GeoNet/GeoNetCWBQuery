@@ -224,13 +224,62 @@ public class SacHeadersTest {
         sac = SacHeaders.setEventHeader(sac, quakeml);
 
         assertEquals("year", sac.nzyear, 2007);
-        assertEquals("month", sac.nzjday, 132);
+        assertEquals("jday", sac.nzjday, 132);
         assertEquals("hour", sac.nzhour, 7);
         assertEquals("minute", sac.nzmin, 41);
         assertEquals("sec", sac.nzsec, 4);
         assertEquals("msec", sac.nzmsec, 874);
         assertEquals("b", sac.b, -6.648770e+02d, 0.0);
         assertEquals("e", sac.e, 1.135113e+03, 0.0);
+        assertEquals("iztype", sac.iztype, SacTimeSeries.IO);
+        assertEquals("lat", sac.evla, eventLat, 0.0);
+
+        assertEquals("lon", sac.evlo, eventLon, 0.0);
+        assertEquals("dep", sac.evdp, eventDepth, 0.0);
+        assertEquals("mag", sac.mag, eventMag, 0.0);
+        assertEquals("imagtyp", sac.imagtyp, 54);
+        assertEquals("ievtyp", sac.ievtyp, 40);
+        assertEquals("lcalda", sac.lcalda, 1);
+    }
+
+    @Test
+    public void testSetEventHeaderQuakeMlNoMag() throws Exception {
+
+    // Some quakeml files can have no mag in them.  Test that we set a sensible default.
+
+        DateTime eventTime = new DateTime(2007, 5, 12, 7, 41, 4, 874, DateTimeZone.UTC);
+        double eventLat = -39.5266d;
+        double eventLon = 175.70213d;
+        double eventDepth = 12000.0d;  // meters
+        double eventMag = -12345.0d;
+        int magType = 54;
+
+        SacTimeSeries sac = new SacTimeSeries();
+
+        sac.nzyear = 2001;
+        sac.nzjday = 249;
+        sac.nzhour = 22;
+        sac.nzmin = 7;
+        sac.nzsec = 32;
+        sac.nzmsec = 370;
+
+        sac.b = 0.000000e+00d;
+        sac.e = 1.799990e+03;
+
+        sac.iztype = SacTimeSeries.IB;
+
+        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersTest.class.getResourceAsStream("quakeml_1870524.xml"), null);
+
+        sac = SacHeaders.setEventHeader(sac, quakeml);
+
+        assertEquals("year", sac.nzyear, 2001);
+        assertEquals("jday", sac.nzjday, 249);
+        assertEquals("hour", sac.nzhour, 22);
+        assertEquals("minute", sac.nzmin, 7);
+        assertEquals("sec", sac.nzsec, 32);
+        assertEquals("msec", sac.nzmsec, 370);
+        assertEquals("b", sac.b, 0.0, 0.0);
+        assertEquals("e", sac.e, 1799.99, 0.0);
         assertEquals("iztype", sac.iztype, SacTimeSeries.IO);
         assertEquals("lat", sac.evla, eventLat, 0.0);
 
