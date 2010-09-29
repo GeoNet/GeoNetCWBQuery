@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="CWBQuery" default="default" basedir=".">
-    <description>Builds, tests, and runs the project CWBQuery.</description>
+<project name="GeoNetCWBQuery" default="default" basedir=".">
+    <description>Builds, tests, and runs the project GeoNetCWBQuery.</description>
     <import file="nbproject/build-impl.xml"/>
 
     <get src="http://codegeo.org/repos/codegeo/build/trunk/build-base.xml"
@@ -37,7 +37,7 @@
         <antcall target="setup-nb-build-environment"/>
     </target>
     
-    <target name="jar" depends="CWBQuery-impl.jar"
+    <target name="jar" depends="GeoNetCWBQuery-impl.jar"
         description="initialises and runs the proguard configuration for this project.">
         <path id="proguard.classpath">
             <fileset dir="${ivy.lib.dir}">
@@ -123,7 +123,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="CWBQuery-impl.jar">
+        <target name="run" depends="GeoNetCWBQuery-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>
