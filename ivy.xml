@@ -65,7 +65,7 @@
 
         <dependency org="nz.org.geonet-attic" name="GeoNetCWBQuery" rev="2.0.0" conf="external->master"/>
 
-        <dependency org="nz.org.geonet" name="CWBQueryTestData" rev="1.0.1" conf="test->default"/>
+        <dependency org="nz.org.geonet" name="CWBQueryTestData" rev="1.0.2" conf="test->default"/>
 
         <dependency org="junit" name="junit" rev="4.7" conf="test->default"/>
 
