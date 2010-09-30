@@ -1,6 +1,6 @@
 #!/bin/bash
 
-jarversion=1.0.1
+jarversion=1.0.2
 
 tmpdir="/tmp/cwb-test.$$"
 mkdir -p $tmpdir
@@ -43,7 +43,7 @@ mkdir -p $tmpdir/CWBQueryTestData/$jarversion
 
 mv $tmpdir/CWBQueryTestData-${jarversion}.jar $tmpdir/CWBQueryTestData/$jarversion/
 
-rsync -v --archive --no-perms --rsh=ssh $tmpdir/CWBQueryTestData repoadmin@repo.geonet.org.nz:/work/maven/public_html/ivy/repo/manual/nz/org/geonet/
+#rsync -v --archive --no-perms --rsh=ssh $tmpdir/CWBQueryTestData repoadmin@repo.geonet.org.nz:/work/maven/public_html/ivy/repo/manual/nz/org/geonet/
 
 #rm -rf $tmpdir
 
