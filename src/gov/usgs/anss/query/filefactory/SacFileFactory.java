@@ -270,7 +270,7 @@ public class SacFileFactory {
         NSCL nscl = new NSCL(timeSeries.knetwk,
                 timeSeries.kstnm,
                 timeSeries.kcmpnm,
-                timeSeries.khole);
+                timeSeries.khole.length() !=0 ? timeSeries.khole : "__" );
 
         String filename = Filename.makeFilename(mask, nscl, begin);
         if (mask.equals("%N")) {
