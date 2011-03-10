@@ -81,5 +81,8 @@ public class FilenameTest {
         assertEquals("sac mask", "200901011111.WEL.HHZ.10.NZ.sac",
                 Filename.makeFilename("%z%y%M%D%h%m.%s.%c.%l.%n.sac", new NSCL("NZ", "WEL  ", "HHZ", "10"), new DateTime(2009, 1, 1, 11, 11, 11, 0, tz)));
 
+        assertEquals("SDS mask", "2009/NZ/WEL/HHZ.D/NZ.WEL.10.HHZ.D.2009.001",
+                Filename.makeFilename("%SDS", new NSCL("NZ", "WEL  ", "HHZ", "10"), new DateTime(2009, 1, 1, 11, 11, 11, 0, tz)));
+
     }
 }
