@@ -66,6 +66,7 @@ public class EdgeQueryOptions {
     public enum OutputType {
 
         ms,
+        mx,
         msz,
         sac,
         dcc,
@@ -379,6 +380,8 @@ public class EdgeQueryOptions {
         switch (getType()) {
             case ms:
                 return new MSOutputer(this);
+            case mx:
+                return new MultiplexedMSOutputer(this);
             case sac:
                 return new SacOutputer(this);
             case msz:

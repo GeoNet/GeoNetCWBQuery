@@ -19,10 +19,12 @@
 package gov.usgs.anss.query;
 
 import gov.usgs.anss.seed.MiniSeed;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -46,7 +48,7 @@ public class MSOutputer extends Outputer {
             filename += ".ms";
         }
         filename = filename.replaceAll("[__]", "_");
-        FileOutputStream out = new FileOutputStream(filename);
+        FileOutputStream out = FileUtils.openOutputStream(new File(filename));
         if (!options.nosort) {
             Collections.sort(blks);
         }
