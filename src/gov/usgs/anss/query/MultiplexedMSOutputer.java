@@ -18,6 +18,7 @@ package gov.usgs.anss.query;
 
 import gov.usgs.anss.edge.IllegalSeednameException;
 import gov.usgs.anss.seed.MiniSeed;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,6 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,8 +39,6 @@ import org.apache.commons.io.FileUtils;
  */
 public class MultiplexedMSOutputer extends Outputer {
 
-	boolean dbg;
-
 	static {
 		logger.fine("$Id$");
 	}
@@ -48,18 +48,23 @@ public class MultiplexedMSOutputer extends Outputer {
 	private ArrayList<MiniSeed> mxBlks;
 	private final MSOutputer slave;
 	private final String origFileMask;
-	private boolean cleanup = true;
+	private boolean cleanup;
+	private boolean allowEmpty = true;
 
 	public MultiplexedMSOutputer(EdgeQueryOptions options) {
-		this.options = options;
+		this(options, true);
+	}
+
+	public MultiplexedMSOutputer(EdgeQueryOptions options, boolean cleanupDefault) {
+		this.cleanup = cleanupDefault;
 		this.origFileMask = options.filemask;
+		this.tempFiles = new ArrayList<File>();
 
 		parseExtras(options);
 		if (temp == null) {
 			this.mxBlks = new ArrayList<MiniSeed>();
 			options.nosort = true;
 		} else {
-			this.tempFiles = new ArrayList<File>();
 			options.filemask = temp + "/%N.tmp.ms";
 		}
 		this.slave = new MSOutputer(options);
@@ -71,27 +76,50 @@ public class MultiplexedMSOutputer extends Outputer {
 					@Override
 					public void run() {
 						try {
-							makeMultiplexedFile();
-						} catch (IOException ex) {
-							Logger.getLogger(MultiplexedMSOutputer.class.getName()).log(
-									Level.SEVERE,
-									"IOException while attempting to create multiplexed miniseed file.",
-									ex);
+							System.err.println("Multiplexing fetched blocks...");
+							if (temp == null) {
+								if (!allowEmpty) {
+									logger.fine("Removing any empty MiniSeed blocks");
+									ArrayList<MiniSeed> empty = new ArrayList<MiniSeed>();
+									for (MiniSeed ms : mxBlks) {
+										if (ms.getNsamp() > 0 && ms.getRate() > 0)
+											empty.add(ms);
+									}
+									mxBlks.removeAll(empty);
+								}
+								logger.fine("Directly sorting block list.");
+								Collections.sort(mxBlks, new MiniSeedTimeOnlyComparator());
+								slave.makeFile(null, origFileMask, mxBlks);
+							} else {
+								multiplexFiles(origFileMask, tempFiles, cleanup, allowEmpty);
+							}
+							System.err.println("Done!");
+						} catch (Exception ex) {
+							System.err.println("Exception while attempting to create multiplexed miniseed file.");
+							System.err.println(ex);
+							System.exit(1);
 						}
 					}
 				});
 	}
 
-	public void parseExtras(EdgeQueryOptions options) {
+	private void parseExtras(EdgeQueryOptions options) {
 		for (int i = 0; i < options.extraArgs.size(); i++) {
 			if (options.extraArgs.get(i).equals("-temp")) {
-				this.temp = options.extraArgs.get(i + 1);
+				this.temp = options.extraArgs.get(++i);
 			}
-			if (options.extraArgs.get(i).equals("-notemp")) {
+			else if(options.extraArgs.get(i).equals("-notemp")) {
 				this.temp = null;
 			}
-			if (options.extraArgs.get(i).equals("-nocleanup")) {
+			else if(options.extraArgs.get(i).equals("-nocleanup")) {
 				this.cleanup = false;
+			}
+			else if(options.extraArgs.get(i).equals("-noempty")) {
+				this.allowEmpty = false;
+			}
+			else {
+				File f = new File(options.extraArgs.get(i));
+				tempFiles.add(f);
 			}
 		}
 	}
@@ -100,7 +128,7 @@ public class MultiplexedMSOutputer extends Outputer {
 	 * This satisfies the interface, but doesn't really do much.
 	 * When using temp files, this will simply pass the work on to MSOutputer to
 	 * sort each individual file.
-	 * And when temp files are disabled, we just keep appending the miniseed
+	 * And when temp files are disabled, we just keep appending the MiniSEED
 	 * blocks to mxBlks, for later sorting and output.
 	 * @see makeMultiplexedFile
 	 * @param nscl
@@ -121,49 +149,97 @@ public class MultiplexedMSOutputer extends Outputer {
 
 	/**
 	 * This does the hard work of sorting - called as a shutdown hook.
+	 * TODO: consider recursion.
+	 * @param outputName name for the output file.
+	 * @param files list of MiniSEED files to multiplex.
+	 * @param cleanup flag indicating whether to cleanup after ourselves or not.
 	 * @throws IOException
 	 */
-	public void makeMultiplexedFile() throws IOException {
-		if (temp == null) {
-			Collections.sort(mxBlks, new MiniSeedTimeOnlyComparator());
-			logger.info("Block list");
-			for (MiniSeed ms : mxBlks) {
-				System.err.println(ms.getSeedName() + " " + ms.getTimeString() + " " + ms.getEndTimeString() + " " + ms.getTimeInMillis() + " " + ms.getHuseconds());
+	public static void multiplexFiles(String outputName, List<File> files, boolean cleanup, boolean allowEmpty) throws IOException {
+		ArrayList<File> cleanupFiles = new ArrayList<File>(files);
+		ArrayList<File> moreFiles = new ArrayList<File>();
+
+		File outputFile = new File(outputName);
+		File tempOutputFile = new File(outputName + ".tmp");
+
+		do {
+			// This checks if we're in a subsequent (i.e. not the first) iteration and if there are any more files to process...?
+			if (!moreFiles.isEmpty()) {
+				logger.info("more files left to multiplex...");
+				FileUtils.deleteQuietly(tempOutputFile);
+				FileUtils.moveFile(outputFile, tempOutputFile);
+
+				cleanupFiles.add(tempOutputFile);
+				moreFiles.add(tempOutputFile);
+				files = moreFiles;
+				moreFiles = new ArrayList<File>();
 			}
-			slave.makeFile(null, origFileMask, mxBlks);
-		} else {
-			FileOutputStream out = FileUtils.openOutputStream(new File(origFileMask));
+
+			logger.log(Level.FINE, "Multiplexing blocks from {0} temp files to {1}", new Object[]{files.size(), outputName});
+			BufferedOutputStream out = new BufferedOutputStream(FileUtils.openOutputStream(outputFile));
+
 			// The hard part, sorting the temp files...
 			TreeMap<MiniSeed, FileInputStream> blks =
 					new TreeMap<MiniSeed, FileInputStream>(new MiniSeedTimeOnlyComparator());
 			// Prime the TreeMap
-			for (File file : tempFiles) {
-				logger.info(file.toString());
-				FileInputStream fs = FileUtils.openInputStream(file);
-				MiniSeed ms = readMiniSeed(fs);
-				if (ms != null)
-					blks.put(ms, fs);
+			logger.log(Level.FINEST, "Priming the TreeMap with files: {0}", files);
+			for (File file : files) {
+				logger.log(Level.INFO, "Reading first block from {0}", file.toString());
+				try {
+					FileInputStream fs = FileUtils.openInputStream(file);
+					MiniSeed ms = getNextValidMiniSeed(fs, allowEmpty);
+					if (ms != null) {
+						blks.put(ms, fs);
+					} else {
+						logger.log(Level.WARNING, "Failed to read valid MiniSEED block from {0}", file.toString());
+					}
+				} catch (IOException ex) {
+					// Catch "Too many open files" i.e. hitting ulimit, throw anything else.
+					if(ex.getMessage().contains("Too many open files")) {
+						logger.log(Level.INFO, "Too many open files - {0} deferred.", file.toString());
+						moreFiles.add(file);
+					}
+					else
+						throw ex;
+				}
 			}
-			
+
 			while (!blks.isEmpty()) {
 				MiniSeed next = blks.firstKey();
 				out.write(next.getBuf(), 0, next.getBlockSize());
 
 				FileInputStream fs = blks.remove(next);
-				next = readMiniSeed(fs);
-				if (next != null)
+				next = getNextValidMiniSeed(fs, allowEmpty);
+				if (next != null) {
 					blks.put(next, fs);
+				} else {
+					fs.close();
+				}
 			}
 
 			out.close();
-			if (cleanup) {
-				for (File file : tempFiles) {
-					FileUtils.deleteQuietly(file);
-				}
+		} while (!moreFiles.isEmpty());
+
+		if (cleanup) {
+			logger.log(Level.INFO, "Cleaning up...");
+			for (File file : cleanupFiles) {
+				FileUtils.deleteQuietly(file);
 			}
 		}
 	}
 
+	public static MiniSeed getNextValidMiniSeed(InputStream inStream, boolean allowEmpty) throws IOException {
+		MiniSeed ms = null;
+		while ((ms = readMiniSeed(inStream)) != null) {
+			// Ensure we have samples and a rate. TODO: Further validation?
+			if (allowEmpty || (ms.getNsamp() > 0 && ms.getRate() > 0.0)) {
+				break;
+			} else {
+				logger.log(Level.WARNING, "Empty MiniSEED block found {0}", ms.toString());
+			}
+		}
+		return ms;
+	}
 	/**
 	 * Attempts to read a MiniSeed object from a given input stream.
 	 * @param inStream
@@ -205,8 +281,7 @@ public class MultiplexedMSOutputer extends Outputer {
         int len;
         while ((len = in.read(b, off, l)) > 0) {
             off += len;
-            l -=
-                    len;
+            l -= len;
             if (l == 0) {
                 return true;
             }
@@ -229,9 +304,9 @@ public class MultiplexedMSOutputer extends Outputer {
 				return 1;
 			}
 
-			if (o1.getGregorianCalendar().before(o2.getGregorianCalendar())) {
+			if (o1.getEndTime().before(o2.getEndTime())) {
 				return -1;
-			} else if (o1.getGregorianCalendar().after(o2.getGregorianCalendar())) {
+			} else if (o1.getEndTime().after(o2.getEndTime())) {
 				return 1;
 			} else {
 				// reverse sort on network, then station, then channel.
@@ -240,5 +315,15 @@ public class MultiplexedMSOutputer extends Outputer {
 				return NSCL.LocationComparator.compare(nscl1, nscl2);
 			}
 		}
+	}
+
+	/**
+	 * Possibly useful for arbitrary pre-existing sorted MiniSEED volumes.
+	 * @param args
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws IOException {
+		// We don't want to default to cleanup temp files in this mode.
+		MultiplexedMSOutputer mx = new MultiplexedMSOutputer(new EdgeQueryOptions(args), false);
 	}
 }
