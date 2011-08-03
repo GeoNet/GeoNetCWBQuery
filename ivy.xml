@@ -71,6 +71,8 @@
 
         <dependency org="gsbase" name="gsbase" rev="2.0.1" conf="test->default"/>
 
+        <dependency org="commons-io" name="commons-io" rev="2.0.1" conf="compile->default;foride->sources"/>
+
         <dependency org="com.cenqua.clover" name="clover" rev="latest.release" conf="optional->default"/>
         
         <dependency org="net.sf.proguard" name="proguard" rev="[3.5,)" conf="build->default"/>

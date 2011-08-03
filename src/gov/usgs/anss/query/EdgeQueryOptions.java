@@ -66,6 +66,7 @@ public class EdgeQueryOptions {
     public enum OutputType {
 
         ms,
+        mx,
         msz,
         sac,
         dcc,
@@ -196,6 +197,7 @@ public class EdgeQueryOptions {
             } else if (args[i].equals("-nosort")) { // Documented functionality.
                 nosort = true;
             } else if (args[i].equals("-nogaps")); // legal for sac and zero MS
+            else if (args[i].equals("-noempty")); // legal for mx
             else if (args[i].equals("-nodups")) {
                 chkDups = true;
             } else if (args[i].equals("-sactrim")); // legal for sac and zero MS
@@ -379,6 +381,8 @@ public class EdgeQueryOptions {
         switch (getType()) {
             case ms:
                 return new MSOutputer(this);
+            case mx:
+                return new MultiplexedMSOutputer(this);
             case sac:
                 return new SacOutputer(this);
             case msz:
