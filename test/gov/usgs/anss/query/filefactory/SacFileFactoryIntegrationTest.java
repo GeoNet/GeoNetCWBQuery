@@ -55,7 +55,7 @@ public class SacFileFactoryIntegrationTest {
         return Arrays.asList(new Object[][]{
                     {
                         new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb-pub.cr.usgs.gov", 2052),
+                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -76,7 +76,7 @@ public class SacFileFactoryIntegrationTest {
                     },
                     { // Will have metadata but no paz files due to null unit.
                         new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb-pub.cr.usgs.gov", 2052),
+                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -118,7 +118,7 @@ public class SacFileFactoryIntegrationTest {
                     },
                     { // No sac if gaps - shouldn't be any
                         new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb-pub.cr.usgs.gov", 2052),
+                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -141,7 +141,7 @@ public class SacFileFactoryIntegrationTest {
                     },
                     { // MS has gaps should produce null sac.
                         new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb-pub.cr.usgs.gov", 2052),
+                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
                         "NZBFZ..HHE10",
                         "%N.sac",
                         false, // output expected
@@ -162,6 +162,9 @@ public class SacFileFactoryIntegrationTest {
                         false //extendedPhases
                     },
                     { // MS has gaps but we allow them in the sac.
+                        // TODO this meta data server should get pointed at
+                        // cwb.geonet.org.nz bu as at 3/8/2011 there is a meta data error with CMPAZ
+                        // somewhere and this needs to get released...
                         new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
                         new MetaDataServerImpl("cwb-pub.cr.usgs.gov", 2052),
                         "NZBFZ..HHE10",
@@ -185,7 +188,7 @@ public class SacFileFactoryIntegrationTest {
                     },
                     { // Event data.
                         new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb-pub.cr.usgs.gov", 2052),
+                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected
