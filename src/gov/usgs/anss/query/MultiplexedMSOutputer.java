@@ -57,6 +57,8 @@ public class MultiplexedMSOutputer extends Outputer {
 
 	public MultiplexedMSOutputer(EdgeQueryOptions options, boolean cleanupDefault) {
 		this.cleanup = cleanupDefault;
+		if (options.filemask.equals("%N"))
+			options.filemask = "output.ms";
 		this.origFileMask = options.filemask;
 		this.tempFiles = new ArrayList<File>();
 
