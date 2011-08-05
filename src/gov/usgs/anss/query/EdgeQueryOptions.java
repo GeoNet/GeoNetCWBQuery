@@ -197,7 +197,15 @@ public class EdgeQueryOptions {
             } else if (args[i].equals("-nosort")) { // Documented functionality.
                 nosort = true;
             } else if (args[i].equals("-nogaps")); // legal for sac and zero MS
-            else if (args[i].equals("-noempty")); // legal for mx
+            else if (args[i].equals("-noempty")) {
+                extraArgsList.add(args[i]); // legal for mx
+			}
+            else if (args[i].equals("-notemp")) {
+                extraArgsList.add(args[i]); // legal for mx
+			}
+            else if (args[i].equals("-nocleanup")) {
+                extraArgsList.add(args[i]); // legal for mx
+			}
             else if (args[i].equals("-nodups")) {
                 chkDups = true;
             } else if (args[i].equals("-sactrim")); // legal for sac and zero MS
