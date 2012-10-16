@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<quakeml xmlns="http://quakeml.org/xmlns/quakeml/1.0">
+<eventParameters publicID="smi:geonet.org.nz/quakeml/1.0.1">
+<event publicID="smi:geonet.org.nz/event/1870524g">
+<type>earthquake</type>
+<preferredOriginID>smi:geonet.org.nz/ori/246451/GROPE</preferredOriginID>
+<preferredMagnitudeID>smi:geonet.org.nz/mag/246451/GROPE/ML</preferredMagnitudeID>
+<origin publicID="smi:geonet.org.nz/ori/246451/GROPE">
+<type>hypocenter</type>
+<evaluationMode>manual</evaluationMode>
+<evaluationStatus>confirmed</evaluationStatus>
+<referenceSystemID>smi:ogc.def.crs/EPSG/4272</referenceSystemID>
+<time>
+<value>2001-09-06T22:07:32.370Z</value>
+<uncertainty>0.26371</uncertainty>
+</time>
+<latitude>
+<value>-39.5266</value>
+<uncertainty>0.01516</uncertainty>
+</latitude>
+<longitude>
+<value>175.70213</value>
+<uncertainty>0.03509</uncertainty>
+</longitude>
+<depth>
+<value>12</value>
+</depth>
+<depthType>operator assigned</depthType>
+<quality>
+<azimuthalGap>345</azimuthalGap>
+<minimumDistance>28.89</minimumDistance>
+<maximumDistance>39.79</maximumDistance>
+<usedPhaseCount>6</usedPhaseCount>
+<usedStationCount>4</usedStationCount>
+<standardError>0.10799</standardError>
+</quality>
+<arrival weight="0.54">
+<pickID>smi:geonet.org.nz/pick/3156377</pickID>
+<phase>SG</phase>
+<azimuth>337</azimuth>
+<distance>30.1352</distance>
+<residual>0.178</residual>
+</arrival>
+<arrival weight="1.0">
+<pickID>smi:geonet.org.nz/pick/3156378</pickID>
+<phase>PG</phase>
+<azimuth>340</azimuth>
+<distance>38.5864</distance>
+<residual>-0.093</residual>
+</arrival>
+<arrival weight="0.12">
+<pickID>smi:geonet.org.nz/pick/3156379</pickID>
+<phase>SG</phase>
+<azimuth>340</azimuth>
+<distance>38.5864</distance>
+<residual>0.128</residual>
+</arrival>
+<arrival weight="0.18">
+<pickID>smi:geonet.org.nz/pick/3156380</pickID>
+<phase>SG</phase>
+<azimuth>347</azimuth>
+<distance>39.6984</distance>
+<residual>-0.507</residual>
+</arrival>
+<arrival weight="1.0">
+<pickID>smi:geonet.org.nz/pick/3156381</pickID>
+<phase>PG</phase>
+<azimuth>352</azimuth>
+<distance>28.8008</distance>
+<residual>0.096</residual>
+</arrival>
+<arrival weight="0.54">
+<pickID>smi:geonet.org.nz/pick/3156382</pickID>
+<phase>SG</phase>
+<azimuth>352</azimuth>
+<distance>28.8008</distance>
+<residual>-0.076</residual>
+</arrival>
+</origin>
+<pick publicID="smi:geonet.org.nz/pick/3156377">
+<time>
+<value>2001-09-06T22:07:42.833Z</value>
+<lowerUncertainty>0.1</lowerUncertainty>
+<upperUncertainty>0.25</upperUncertainty>
+</time>
+<waveformID channelCode="SHZ" stationCode="DRZ" networkCode="NZ"/>
+<evaluationStatus>confirmed</evaluationStatus>
+<evaluationMode>manual</evaluationMode>
+</pick>
+<pick publicID="smi:geonet.org.nz/pick/3156378">
+<time>
+<value>2001-09-06T22:07:39.608Z</value>
+<lowerUncertainty>0.0</lowerUncertainty>
+<upperUncertainty>0.1</upperUncertainty>
+</time>
+<waveformID channelCode="SHZ" stationCode="CNZ" networkCode="NZ"/>
+<evaluationStatus>confirmed</evaluationStatus>
+<evaluationMode>manual</evaluationMode>
+</pick>
+<pick publicID="smi:geonet.org.nz/pick/3156379">
+<time>
+<value>2001-09-06T22:07:45.108Z</value>
+<lowerUncertainty>0.25</lowerUncertainty>
+<upperUncertainty>0.5</upperUncertainty>
+</time>
+<waveformID channelCode="SHZ" stationCode="CNZ" networkCode="NZ"/>
+<evaluationStatus>confirmed</evaluationStatus>
+<evaluationMode>manual</evaluationMode>
+</pick>
+<pick publicID="smi:geonet.org.nz/pick/3156380">
+<time>
+<value>2001-09-06T22:07:44.783Z</value>
+<lowerUncertainty>0.25</lowerUncertainty>
+<upperUncertainty>0.5</upperUncertainty>
+</time>
+<waveformID channelCode="SHZ" stationCode="NGZ" networkCode="NZ"/>
+<evaluationStatus>confirmed</evaluationStatus>
+<evaluationMode>manual</evaluationMode>
+</pick>
+<pick publicID="smi:geonet.org.nz/pick/3156381">
+<time>
+<value>2001-09-06T22:07:38.233Z</value>
+<lowerUncertainty>0.0</lowerUncertainty>
+<upperUncertainty>0.1</upperUncertainty>
+</time>
+<waveformID channelCode="SHZ" stationCode="TUVZ" networkCode="NZ"/>
+<evaluationStatus>confirmed</evaluationStatus>
+<evaluationMode>manual</evaluationMode>
+</pick>
+<pick publicID="smi:geonet.org.nz/pick/3156382">
+<time>
+<value>2001-09-06T22:07:42.208Z</value>
+<lowerUncertainty>0.1</lowerUncertainty>
+<upperUncertainty>0.25</upperUncertainty>
+</time>
+<waveformID channelCode="SHZ" stationCode="TUVZ" networkCode="NZ"/>
+<evaluationStatus>confirmed</evaluationStatus>
+<evaluationMode>manual</evaluationMode>
+</pick>
+<magnitude publicID="smi:geonet.org.nz/mag/246451/GROPE/ML">
+<type>ML</type>
+<originID>smi:geonet.org.nz/ori/246451/GROPE</originID>
+</magnitude>
+</event>
+</eventParameters>
+</quakeml>
