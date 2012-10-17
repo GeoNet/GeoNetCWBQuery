@@ -19,14 +19,11 @@
 package gov.usgs.anss.query;
 
 import gov.usgs.anss.query.cwb.formatter.CWBQueryFormatter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.StringReader;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,6 +34,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import nz.org.geonet.quake.domain.geojson.Feature;
+import nz.org.geonet.quake.domain.geojson.FeatureCollection;
 import nz.org.geonet.quakeml.v1_0_1.client.QuakemlFactory;
 import nz.org.geonet.quakeml.v1_0_1.client.QuakemlUtils;
 import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
@@ -47,6 +47,7 @@ import org.joda.time.ReadableDuration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * An attempt to encapsulate (read isolate) EdgeQueryClient command line args.
@@ -774,29 +775,58 @@ public class EdgeQueryOptions {
                     } catch (Exception ex) {
                         Logger.getLogger(EdgeQueryOptions.class.getName()).log(Level.SEVERE, null, ex);
 					}
-                } else {
-					String quakeMlUri = null;
-					try{
-						quakeMlUri = QueryProperties.getQuakeMlUri(uri.getScheme());
-					} catch (MissingResourceException ex) {
-						logger.warning("Couldn't find quakeML URI pattern for " + uri.getScheme());
-						// TODO: list available patterns?
-						logger.info("Known QuakeML authorities are: " +
-								QueryProperties.getQuakeMlAuthorities().toString());
-					}
+				} else {
+					if (event.matches("^geonet:[0-9]{4}[a-zA-Z]{1}[0-9]{6}$")) {
+						// Attempt to treat the event as an SC3 ID - fetch the custom event info from json.
+						String geojsonUri = null;
+						try{
+							geojsonUri = QueryProperties.getGeojsonUri(uri.getScheme());
+						} catch (MissingResourceException ex) {
+							logger.warning("Couldn't find geojson URI pattern for " + uri.getScheme());
+							// TODO: list available patterns?
+							logger.info("Known geojson authorities are: " +
+									QueryProperties.getQuakeMlAuthorities().toString());
+						}
 
-					if (quakeMlUri != null) {
-						// Assume it's a flagged authority's public ID.
-						Matcher quakeMlUriMatcher = Pattern.compile("%ref%").matcher(quakeMlUri);
-						this.event = new QuakemlFactory().getQuakeml(
-								quakeMlUriMatcher.replaceAll(uri.getSchemeSpecificPart()),
-								quakeMlSchemaUrl, null, null);
+
+						if (geojsonUri != null) {
+							// Assume it's a flagged authority's public ID.
+							Matcher geojsonUriMatcher = Pattern.compile("%ref%").matcher(geojsonUri);
+							ObjectMapper mapper = new ObjectMapper();
+							try {
+								FeatureCollection features = mapper.readValue(
+										new URL(geojsonUriMatcher.replaceAll(uri.getSchemeSpecificPart())), FeatureCollection.class);
+								Feature quake = features.getFeatures().get(0);
+								this.customEvent = new CustomEvent(quake);
+							} catch (IOException e) {
+								logger.severe("Failed to parse geojson from server. This probably means that quake doesn't exist.");
+								logger.log(Level.FINE, "Reason for json parsing failure.", e);
+							}
+						}
+					} else {
+						String quakeMlUri = null;
+						try{
+							quakeMlUri = QueryProperties.getQuakeMlUri(uri.getScheme());
+						} catch (MissingResourceException ex) {
+							logger.warning("Couldn't find quakeML URI pattern for " + uri.getScheme());
+							// TODO: list available patterns?
+							logger.info("Known QuakeML authorities are: " +
+									QueryProperties.getQuakeMlAuthorities().toString());
+						}
+
+						if (quakeMlUri != null) {
+							// Assume it's a flagged authority's public ID.
+							Matcher quakeMlUriMatcher = Pattern.compile("%ref%").matcher(quakeMlUri);
+							this.event = new QuakemlFactory().getQuakeml(
+									quakeMlUriMatcher.replaceAll(uri.getSchemeSpecificPart()),
+									quakeMlSchemaUrl, null, null);
+						}
 					}
 				}
             }
         }
 
-        if (this.event == null) {
+        if (this.event == null && this.customEvent == null) {
             logger.severe("failed to retrieve details for event string " + event);
         }
     }

@@ -89,4 +89,25 @@ public class QueryProperties {
 		
 		return auths;
     }
+
+    public static String getGeojsonUri(String authority) {
+        return props.getString(authority + ".geojson-uri");
+    }
+
+    public static List<String> getGeojsonUriAuthorities() {
+        List<String> auths = new ArrayList<String>();
+        Pattern p = Pattern.compile("^(.*)\\.geojson-uri$");
+
+        Enumeration<String> keys = props.getKeys();
+        while (keys.hasMoreElements()) {
+            String key = keys.nextElement();
+
+            Matcher m = p.matcher(key);
+            if (m.matches()) {
+                auths.add(m.group(1));
+            }
+        }
+
+        return auths;
+    }
 }
