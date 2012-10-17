@@ -86,6 +86,12 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -224,6 +230,15 @@
                                 <artifactId>commons-io</artifactId>
                             </inclusion>
 
+                            <inclusion>
+                                <groupId>org.codehaus.jackson</groupId>
+                                <artifactId>jackson-mapper-asl</artifactId>
+                            </inclusion>
+
+                            <inclusion>
+                                <groupId>org.codehaus.jackson</groupId>
+                                <artifactId>jackson-core-asl</artifactId>
+                            </inclusion>
                         </inclusions>
                     </assembly>
                 </configuration>
