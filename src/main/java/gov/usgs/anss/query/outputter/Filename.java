@@ -50,13 +50,13 @@ public class Filename {
 		// GeoNet types: .D .T (01-ACE) .L (01-LOG)
 		// from http://www.seiscomp3.org/wiki/doc/applications/slarchive
 		//type	description
-		//’D’	 Waveform data
-		//’E’	 Detection data
-		//’L’	 Log data
-		//’T’	 Timing data
-		//’C’	 Calibration data
-		//’R’	 Response data
-		//’O’	Opaque data
+		//'D'   Waveform data
+		//'E'   Detection data
+		//'L'   Log data
+		//'T'   Timing data
+		//'C'   Calibration data
+		//'R'   Response data
+		//'O'   Opaque data
 		// e.g. 2011/NZ/WVZ/HHE.D/NZ.WVZ.10.HHE.D.2011.017
 		// Note the %z to remove underscores.
 		name = name.replaceAll("%SDS", "%z%y/%n/%s/%c.D/%n.%s.%l.%c.D.%y.%j");

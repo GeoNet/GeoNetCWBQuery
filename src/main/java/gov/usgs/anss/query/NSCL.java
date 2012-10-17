@@ -26,7 +26,7 @@ import java.util.Comparator;
  * according to SEED conventions.
  * 
  * All NSCL fields are fixed width, ASCII, alphanumeric fields left justified
- * (no leading spaces), and paded with spaces (after the field’s contents).
+ * (no leading spaces), and paded with spaces (after the field's contents).
  * Network Operator Code, 2 ULN (upper case, lower case or numeric digits).
  * Station Identifier, 5 UN.
  * Channel Identifier, 2 UN.
