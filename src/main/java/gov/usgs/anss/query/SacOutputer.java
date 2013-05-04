@@ -77,7 +77,7 @@ public class SacOutputer extends Outputer {
 
     public void doQuery() {
 
-        sacFF.setQuakeML(options.getEvent());
+        sacFF.setEvent(options.getEvent());
         sacFF.setSynthetic(options.getSynthetic());
         sacFF.setCustomEvent(options.getCustomEvent());
         sacFF.setPicks(options.picks);

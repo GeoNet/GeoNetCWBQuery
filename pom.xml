@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nz.org.geonet</groupId>
     <artifactId>GeoNetCWBQuery</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>GeoNetCWBQuery</name>
 
@@ -32,8 +32,8 @@
 
         <dependency>
             <groupId>nz.org.geonet</groupId>
-            <artifactId>jquakeml-1.0.1</artifactId>
-            <version>2.0.2-RC1</version>
+            <artifactId>simple-quakeml</artifactId>
+            <version>1.0.2</version>
             <scope>compile</scope>
         </dependency>
 
@@ -186,12 +186,7 @@
 
                             <inclusion>
                                 <groupId>nz.org.geonet</groupId>
-                                <artifactId>jquakeml-1.0.1</artifactId>
-                            </inclusion>
-
-                            <inclusion>
-                                <groupId>thaiopensource</groupId>
-                                <artifactId>jing</artifactId>
+                                <artifactId>simple-quakeml</artifactId>
                             </inclusion>
 
                             <inclusion>
@@ -205,8 +200,33 @@
                             </inclusion>
 
                             <inclusion>
-                                <groupId>commons-httpclient</groupId>
-                                <artifactId>commons-httpclient</artifactId>
+                                <groupId>org.apache.httpcomponents</groupId>
+                                <artifactId>httpclient</artifactId>
+                            </inclusion>
+
+                            <inclusion>
+                                <groupId>org.apache.httpcomponents</groupId>
+                                <artifactId>httpcore</artifactId>
+                            </inclusion>
+
+                            <inclusion>
+                                <groupId>org.simpleframework</groupId>
+                                <artifactId>simple-xml</artifactId>
+                            </inclusion>
+
+                            <inclusion>
+                                <groupId>stax</groupId>
+                                <artifactId>stax</artifactId>
+                            </inclusion>
+
+                            <inclusion>
+                                <groupId>stax</groupId>
+                                <artifactId>stax-api</artifactId>
+                            </inclusion>
+
+                            <inclusion>
+                                <groupId>xpp3</groupId>
+                                <artifactId>xpp3</artifactId>
                             </inclusion>
 
                             <inclusion>
