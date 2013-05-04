@@ -18,20 +18,18 @@
  */
 package edu.sc.seis.TauP;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Basic serialization test for SacTimeSeriesTest.
@@ -167,25 +165,25 @@ public class SacTimeSeriesTestUtil {
         assertEquals("lcalda", expected.lcalda, result.lcalda);
 
         assertEquals("Phase 0", expected.kt0, result.kt0);
-        assertEquals("Phase t0", expected.t0, result.t0, Math.ulp((float) result.t0));
+        assertEquals("Phase t0", expected.t0, result.t0, 0.0001);
         assertEquals("Phase 1", expected.kt1, result.kt1);
-        assertEquals("Phase t1", expected.t1, result.t1, Math.ulp((float) result.t0));
+        assertEquals("Phase t1", expected.t1, result.t1, 0.0001);
         assertEquals("Phase 2", expected.kt2, result.kt2);
-        assertEquals("Phase t2", expected.t2, result.t2, Math.ulp((float) result.t0));
+        assertEquals("Phase t2", expected.t2, result.t2, 0.0001);
         assertEquals("Phase 3", expected.kt3, result.kt3);
-        assertEquals("Phase t3", expected.t3, result.t3, Math.ulp((float) result.t0));
+        assertEquals("Phase t3", expected.t3, result.t3, 0.0001);
         assertEquals("Phase 4", expected.kt4, result.kt4);
-        assertEquals("Phase t4", expected.t4, result.t4, Math.ulp((float) result.t0));
+        assertEquals("Phase t4", expected.t4, result.t4, 0.0001);
         assertEquals("Phase 5", expected.kt5, result.kt5);
-        assertEquals("Phase t5", expected.t5, result.t5, Math.ulp((float) result.t0));
+        assertEquals("Phase t5", expected.t5, result.t5, 0.0001);
         assertEquals("Phase 6", expected.kt6, result.kt6);
-        assertEquals("Phase t6", expected.t6, result.t6, Math.ulp((float) result.t0));
+        assertEquals("Phase t6", expected.t6, result.t6, 0.0001);
         assertEquals("Phase 7", expected.kt7, result.kt7);
-        assertEquals("Phase t7", expected.t7, result.t7, Math.ulp((float) result.t0));
+        assertEquals("Phase t7", expected.t7, result.t7, 0.0001);
         assertEquals("Phase 8", expected.kt8, result.kt8);
-        assertEquals("Phase t8", expected.t8, result.t8, Math.ulp((float) result.t0));
+        assertEquals("Phase t8", expected.t8, result.t8, 0.0001);
         assertEquals("Phase 9", expected.kt9, result.kt9);
-        assertEquals("Phase t9", expected.t9, result.t9, Math.ulp((float) result.t0));
+        assertEquals("Phase t9", expected.t9, result.t9, 0.0001);
 
         assertEquals("kuser0 - velocity model", expected.kuser0, result.kuser0);
 
