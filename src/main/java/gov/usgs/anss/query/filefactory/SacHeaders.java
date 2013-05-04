@@ -18,29 +18,16 @@
  */
 package gov.usgs.anss.query.filefactory;
 
-import edu.sc.seis.TauP.Arrival;
-import edu.sc.seis.TauP.SacTimeSeries;
-import edu.sc.seis.TauP.SphericalCoords;
-import edu.sc.seis.TauP.TauModelException;
-import edu.sc.seis.TauP.TauP_Time;
+import edu.sc.seis.TauP.*;
 import gov.usgs.anss.query.metadata.ChannelMetaData;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import nz.org.geonet.quakeml.v1_0_1.client.QuakemlUtils;
-import nz.org.geonet.quakeml.v1_0_1.domain.Event;
-import nz.org.geonet.quakeml.v1_0_1.domain.Magnitude;
-import nz.org.geonet.quakeml.v1_0_1.domain.Origin;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
-import nz.org.geonet.quakeml.v1_0_1.report.ArrivalPick;
+import nz.org.geonet.simplequakeml.domain.Event;
+import nz.org.geonet.simplequakeml.domain.Pick;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -200,71 +187,40 @@ public class SacHeaders {
         return sac;
     }
 
-    public static SacTimeSeries setEventHeader(SacTimeSeries sac, Quakeml quakeml) {
+    public static SacTimeSeries setEventHeader(SacTimeSeries sac, Event event) {
 
-        Origin origin = null;
         Double magnitude = null;
         Double latitude = null;
         Double longitude = null;
         Double depth = null;
         int magType = sacMagType("MX");
         int eventType = sacMagType("NULL");
-        Magnitude mag = null;
 
-        Event event = QuakemlUtils.getFirstEvent(quakeml);
-        origin = QuakemlUtils.getPreferredOrigin(event);
-
-        try {
-            mag = QuakemlUtils.getPreferredMagnitude(event);
-        } catch (Exception ex) {
-            logger.warning("Found no magnitude definition setting to unknown.");
-        }
-        if (mag != null) {
-            if ( mag.getMag() != null) {
-            magnitude = mag.getMag().getValue();
-            } else {
-                magnitude = -12345.0;
-            }
-            magType = sacMagType(mag.getType());
+        if (event.getMagnitude() != 0.0) {
+            magnitude = Double.valueOf(event.getMagnitude());
         } else {
             logger.warning("Found no magnitude definition setting to unknown.");
+            magnitude = -12345.0;
         }
 
-        try {
-            latitude = origin.getLatitude().getValue();
-        } catch (Exception ex) {
-            logger.warning("Found no latitude definition setting to unknown.");
+        if (event.getMagnitudeType() != null) {
+            magType = sacMagType(event.getMagnitudeType());
         }
 
-        try {
-            longitude = origin.getLongitude().getValue();
-        } catch (Exception ex) {
-            logger.warning("Found no longitude definition setting to unknown.");
-        }
+        latitude = Double.valueOf(event.getLatitude());
+        longitude = Double.valueOf(event.getLongitude());
+        depth = Double.valueOf(event.getDepth()) * 1000.0d;
 
-        try {
-            depth = origin.getDepth().getValue();
-        } catch (Exception ex) {
-            logger.warning("Found no depth definition setting to unknown.");
-        }
 
-        if (depth != null) {
-            depth = depth * 1000.0d;
-        }
 
-        try {
-            eventType = sacEventType(event.getType().value());
-        } catch (Exception ex) {
+        if (event.getType() != null) {
+            eventType = sacEventType(event.getType());
+        } else {
             logger.warning("Found no event type definition setting to unknown.");
         }
 
-        DateTime eventTime = null;
+        DateTime eventTime = event.getTime();
 
-        if (origin != null) {
-            eventTime = QuakemlUtils.getOriginTime(origin);
-        }
-
-        if (eventTime != null) {
             sac = SacHeaders.setEventHeader(sac, eventTime, // eventLat, eventLon, eventDepth, eventMag, sacMagType)
                     latitude,
                     longitude,
@@ -272,9 +228,6 @@ public class SacHeaders {
                     magnitude,
                     magType,
                     eventType);
-        } else {
-            logger.warning("found no event time definition in the QUakeML.  Not updating header.");
-        }
 
         return sac;
     }
@@ -293,11 +246,11 @@ public class SacHeaders {
      *  'mc' - manual confirmed.
      *
      * @param sac
-     * @param quakeml
+     * @param event
      * @return
      */
-    public static SacTimeSeries setPhasePicks(SacTimeSeries sac, Quakeml quakeml) {
-        return SacHeaders.setHeaderPhasePicks(sac, getQuakeMLPhasePicks(sac, quakeml));
+    public static SacTimeSeries setPhasePicks(SacTimeSeries sac, Event event) {
+        return SacHeaders.setHeaderPhasePicks(sac, getQuakeMLPhasePicks(sac, event));
     }
 
     /**
@@ -377,10 +330,10 @@ public class SacHeaders {
      * http://rses.anu.edu.au/seismology/ak135/ak135f.html http://www.iaspei.org/projects/0903srl_iasp91_Arthur_Snoke.pdf http://books.google.co.nz/books?id=J-TObT4IEiUC&lpg=PA228&ots=PmOxLjcZqi&dq=prem%20seismic%20velocity%20model&pg=PA228#v=onepage&q=prem%20seismic%20velocity%20model&f=false
      *
      */
-    public static SacTimeSeries setPhasePicks(SacTimeSeries sac, Quakeml quakeml, boolean extendedPhaseGroups, String velocityModel) {
+    public static SacTimeSeries setPhasePicks(SacTimeSeries sac, Event event, boolean extendedPhaseGroups, String velocityModel) {
         List<SacPhasePick> picks = reduceTriplicatedPhases(getSyntheticPhases(sac, extendedPhaseGroups, velocityModel));
 
-        picks.addAll(getQuakeMLPhasePicks(sac, quakeml));
+        picks.addAll(getQuakeMLPhasePicks(sac, event));
         sac.kuser0 = velocityModel;
         return (setHeaderPhasePicks(sac, picks));
     }
@@ -401,42 +354,40 @@ public class SacHeaders {
      *  'mr' - manual rejected.
      *
      * @param sac
-     * @param quakeml
+     * @param event
      * @return
      */
-    public static List<SacPhasePick> getQuakeMLPhasePicks(SacTimeSeries sac, Quakeml quakeml) {
-        Origin origin = null;
-        Event event = QuakemlUtils.getFirstEvent(quakeml);
-        origin = QuakemlUtils.getPreferredOrigin(event);
+    public static List<SacPhasePick> getQuakeMLPhasePicks(SacTimeSeries sac, Event event) {
 
-        List<ArrivalPick> picks = null;
-        if (origin != null) {
-            try {
-                picks = QuakemlUtils.getArrivalPicksByStationChannel(event, origin, sac.knetwk.trim(), sac.kstnm.trim(), sac.kcmpnm);
-            } catch (Exception ex) {
-                logger.warning("unable to read phase picks.");
+        List<Pick> picks = new ArrayList<Pick>();
+
+        for (Pick pick : event.getPicks()) {
+            if (pick.getChannel() != null) {
+                if (sac.knetwk.trim().equals(pick.getNetwork()) && sac.kstnm.trim().equals(pick.getStation()) && sac.kcmpnm.equals(pick.getChannel())) {
+                    picks.add(pick);
+                }
             }
-        } else {
-            logger.warning("found no origin information in the QuakeML, will not be able to set picks");
         }
 
         List<SacPhasePick> phasePicks = new ArrayList<SacPhasePick>();
 
-        for (ArrivalPick pick : picks) {
+        DateTime originTime = event.getTime();
 
-            String phaseName = pick.getArrival().getPhase().getValue();
+        for (Pick pick : picks) {
+
+            String phaseName = pick.getPhase();
             String status = "u";
             String mode = "u";
 
-            try {
-                status = (pick.getPick().getEvaluationStatus().value().substring(0, 1));
-            } catch (Exception ex) {
+            if (pick.getStatus() != null) {
+                status = (pick.getStatus().substring(0, 1));
+            } else {
                 logger.warning("Found no pick evaluation status in the quakeml.  Setting to 'u'.");
             }
 
-            try {
-                mode = pick.getPick().getEvaluationMode().value().substring(0, 1);
-            } catch (Exception ex) {
+            if (pick.getMode() != null) {
+                mode = pick.getMode().substring(0, 1);
+            } else {
                 logger.warning("Found no pick evaluation mode in the quakeml.  Setting to 'u'.");
             }
 
@@ -444,19 +395,14 @@ public class SacHeaders {
             // In the GeoNet CUSP case this means the pick
             // hasn't been 'X'ed but it's residual is so high
             // that it's not included in the solution.
-            try {
-                Double weight = pick.getArrival().getWeight();
+            Double weight = Double.valueOf(pick.getWeight());
                 if (weight == 0.0) {
                     status = "r";
                 }
-            } catch (Exception ex) {
-                logger.warning("Found no pick weight in the quakeml.  Status may be incorrect.");
-
-            }
 
             String phaseString = String.format("%s %s%s", phaseName, mode, status);
 
-            double arrivalTime = pick.getMillisAfterOrigin() / 1000.0d;
+            double arrivalTime = (pick.getTime().getMillis() - originTime.getMillis()) / 1000.0d;
 
             phasePicks.add(new SacPhasePick(phaseString, arrivalTime));
         }

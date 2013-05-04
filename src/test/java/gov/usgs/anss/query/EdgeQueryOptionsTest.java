@@ -18,18 +18,10 @@
  */
 package gov.usgs.anss.query;
 
-import gov.usgs.anss.query.EdgeQueryOptions.OutputType;
 import gov.usgs.anss.query.filefactory.SacHeaders.SacEventType;
 import gov.usgs.anss.query.filefactory.SacHeaders.SacMagType;
-import java.io.Reader;
-import java.util.Date;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -125,7 +117,7 @@ public class EdgeQueryOptionsTest {
 		System.out.println("testSynthFlags");
 		// First test the defaults
 		EdgeQueryOptions instance = new EdgeQueryOptions(new String[]{
-			"-event", "geonet:32266622",
+			"-event", "geonet:2013p325188",
 		});
 
 		assertEquals("picks", true, instance.picks);
@@ -135,7 +127,7 @@ public class EdgeQueryOptionsTest {
 		
 		// Now add some synth flags
 		instance = new EdgeQueryOptions(new String[]{
-			"-event", "geonet:32266622",
+			"-event", "geonet:2013p325188",
 			"-nopicks", "-synthetic", "-extended-phases",
 		});
 
@@ -146,7 +138,7 @@ public class EdgeQueryOptionsTest {
 
 		// Now test synthetic arse
 		instance = new EdgeQueryOptions(new String[]{
-			"-event", "geonet:32266622",
+			"-event", "geonet:2013p325188",
 			"-synthetic:arse",
 		});
 

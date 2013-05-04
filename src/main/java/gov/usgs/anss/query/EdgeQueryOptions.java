@@ -19,27 +19,8 @@
 package gov.usgs.anss.query;
 
 import gov.usgs.anss.query.cwb.formatter.CWBQueryFormatter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.MissingResourceException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import nz.org.geonet.quakeml.v1_0_1.client.QuakemlFactory;
-import nz.org.geonet.quakeml.v1_0_1.client.QuakemlUtils;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
+import nz.org.geonet.simplequakeml.QuakeML_RT_1_2;
+import nz.org.geonet.simplequakeml.domain.Event;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
@@ -47,6 +28,15 @@ import org.joda.time.ReadableDuration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
+
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An attempt to encapsulate (read isolate) EdgeQueryClient command line args.
@@ -126,7 +116,7 @@ public class EdgeQueryOptions {
     public boolean chkDups = false;
     public boolean sacpz = false;
     public String pzunit = "nm";
-    private Quakeml event = null;
+    private Event event = null;
     private ReadableDuration offset = null;
 	
 	public boolean picks = true;
@@ -570,7 +560,7 @@ public class EdgeQueryOptions {
     /**
      * Sets the duration from a String. By default this is interpreted as seconds
      * but the user can append 'd' or 'D' to the number to represent days.
-     * @param duration the duration string to set
+     * @param durationString the duration string to set
      */
     private void setDuration(String durationString) {
         if (durationString != null) {
@@ -668,7 +658,7 @@ public class EdgeQueryOptions {
 		} else if (getCustomEvent() != null) {
 			quakeMLBegin = getCustomEvent().getEventTime();
 		} else if (getEvent() != null) {
-			quakeMLBegin = QuakemlUtils.getOriginTime(QuakemlUtils.getPreferredOrigin(QuakemlUtils.getFirstEvent(event)));
+			quakeMLBegin = event.getTime();
         }
 
         return quakeMLBegin;
@@ -719,14 +709,14 @@ public class EdgeQueryOptions {
     /**
      * @return the event
      */
-    public Quakeml getEvent() {
+    public Event getEvent() {
         return event;
     }
 
     /**
      * @param event the event to set
      */
-    public void setEvent(Quakeml event) {
+    public void setEvent(Event event) {
         this.event = event;
     }
 
@@ -736,7 +726,6 @@ public class EdgeQueryOptions {
      * an event to use.
      */
     public void setEvent(String event) {
-        String quakeMlSchemaUrl = null;
 		URI uri = null;
         try {
             uri = new URI(event);
@@ -759,16 +748,15 @@ public class EdgeQueryOptions {
                             username = username.substring(0, split);
                         }
                     }
-                    this.event = new QuakemlFactory().getQuakeml(
-                            event,
-							quakeMlSchemaUrl,
-                            username,
-                            password);
+                    try {
+                        this.event = new QuakeML_RT_1_2().read(event);
+                    } catch (Exception e) {
+                        Logger.getLogger(EdgeQueryOptions.class.getName()).log(Level.SEVERE, null, e);
+                    }
                 } else if (uri.getScheme().equals("file")) {
                     try {
-                        this.event = new QuakemlFactory().getQuakeml(
-								new FileInputStream(new File(uri)),
-								quakeMlSchemaUrl);
+                        this.event = new QuakeML_RT_1_2().read(
+                                new FileInputStream(new File(uri)));
                     } catch (FileNotFoundException ex) {
                         Logger.getLogger(EdgeQueryOptions.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (Exception ex) {
@@ -788,10 +776,12 @@ public class EdgeQueryOptions {
 					if (quakeMlUri != null) {
 						// Assume it's a flagged authority's public ID.
 						Matcher quakeMlUriMatcher = Pattern.compile("%ref%").matcher(quakeMlUri);
-						this.event = new QuakemlFactory().getQuakeml(
-								quakeMlUriMatcher.replaceAll(uri.getSchemeSpecificPart()),
-								quakeMlSchemaUrl, null, null);
-					}
+                        try {
+                            this.event = new QuakeML_RT_1_2().read(quakeMlUriMatcher.replaceAll(uri.getSchemeSpecificPart()));
+                        } catch (Exception e) {
+                            Logger.getLogger(EdgeQueryOptions.class.getName()).log(Level.SEVERE, null, e);
+                        }
+                    }
 				}
             }
         }

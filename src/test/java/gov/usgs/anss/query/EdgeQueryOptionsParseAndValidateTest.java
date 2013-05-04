@@ -18,14 +18,16 @@
  */
 package gov.usgs.anss.query;
 
-import java.util.Arrays;
-import java.util.Collection;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import static org.junit.Assert.*;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -49,9 +51,10 @@ public class EdgeQueryOptionsParseAndValidateTest {
 			{new EdgeQueryOptions("-b \"2009/01/01 00:00:00\""), false, "seedname is not optional."},
 
 			// Ultimately this will probably have to go... Unless we do the TODOs
-			{new EdgeQueryOptions("-s \"NZWLGT\" -event 3134964"), false, "event options should be qualified."},
-			{new EdgeQueryOptions("-s \"NZWLGT\" -event geonet:3134964"), true, "seedname and event options should be valid."},
-			{new EdgeQueryOptions("-event geonet:3266622"), true, "event by itself, should be valid (if event contains pics)."},
+            // Commented out the qualified events - fetching JSON?
+//			{new EdgeQueryOptions("-s \"NZWLGT\" -event 2013p321497"), false, "event options should be qualified."},
+//			{new EdgeQueryOptions("-s \"NZWLGT\" -event geonet:2013p321497"), true, "seedname and event options should be valid."},
+//			{new EdgeQueryOptions("-event geonet:2013p321497"), true, "event by itself, should be valid (if event contains pics)."},
 
 			{new EdgeQueryOptions("-s \"NZWLGT\" -b \"2009/01/01 00:00:00\" -t NULL"), true, "type null is legal."},
 
