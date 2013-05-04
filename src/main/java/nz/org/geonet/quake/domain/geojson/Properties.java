@@ -17,8 +17,8 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Properties {
-    private double depth;
-    private double magnitude;
+    private float depth;
+    private float magnitude;
     private String origintime;
     private String publicid;
     private String status;
@@ -49,11 +49,11 @@ public class Properties {
     /**
      * @return     The earthquake magnitude.
      */
-    public double getMagnitude() {
+    public float getMagnitude() {
         return magnitude;
     }
 
-    public void setMagnitude(double magnitude) {
+    public void setMagnitude(float magnitude) {
         this.magnitude = magnitude;
     }
 
@@ -61,11 +61,11 @@ public class Properties {
      *
      * @return The earthquake depth (km).
      */
-    public double getDepth() {
+    public float getDepth() {
         return depth;
     }
 
-    public void setDepth(double depth) {
+    public void setDepth(float depth) {
         this.depth = depth;
     }
 

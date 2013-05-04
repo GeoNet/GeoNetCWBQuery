@@ -17,27 +17,27 @@ import java.util.ArrayList;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Geometry {
-    private ArrayList<Double> coordinates;
+    private ArrayList<Float> coordinates;
 
-    public ArrayList<Double> getCoordinates() {
+    public ArrayList<Float> getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(ArrayList<Double> coordinates) {
+    public void setCoordinates(ArrayList<Float> coordinates) {
         this.coordinates = coordinates;
     }
 
     /**
      * @return   The longitude of the feature.
      */
-    public double getLongitude() {
-        return coordinates.get(0).doubleValue();
+    public float getLongitude() {
+        return coordinates.get(0).floatValue();
     }
 
     /**
      * @return  The latitude of the feature.
      */
-    public double getLatitude() {
-        return coordinates.get(1).doubleValue();
+    public float getLatitude() {
+        return coordinates.get(1).floatValue();
     }
 }
