@@ -28,17 +28,14 @@ import gov.usgs.anss.query.metadata.MetaDataQuery;
 import gov.usgs.anss.query.metadata.MetaDataServer;
 import gov.usgs.anss.query.outputter.Filename;
 import gov.usgs.anss.seed.MiniSeed;
+import nz.org.geonet.simplequakeml.domain.Event;
+import org.joda.time.DateTime;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -49,7 +46,7 @@ public class SacFileFactory {
     private static final Logger logger = Logger.getLogger(SacFileFactory.class.getName());
     private CWBDataServer cwbServer = null;
     private MetaDataServer metaDataServer = null;
-    private Quakeml quakeml = null;
+    private Event event = null;
     private String synthetic = null;
     private CustomEvent customEvent = null;
     private String pzunit = null;
@@ -71,8 +68,8 @@ public class SacFileFactory {
         this.metaDataServer = metaDataServer;
     }
 
-    public void setQuakeML(Quakeml quakeml) {
-        this.quakeml = quakeml;
+    public void setEvent(Event event) {
+        this.event = event;
     }
 
     public void setSynthetic(String synthetic) {
@@ -123,13 +120,13 @@ public class SacFileFactory {
                         this.gaps,
                         this.trim);
                 if (sac != null) {
-                    if (this.quakeml != null) {
-                        SacHeaders.setEventHeader(sac, this.quakeml);
+                    if (this.event != null) {
+                        SacHeaders.setEventHeader(sac, this.event);
                         if (this.picks) {
                             if (this.synthetic == null) {
-                                SacHeaders.setPhasePicks(sac, this.quakeml);
+                                SacHeaders.setPhasePicks(sac, this.event);
                             } else {
-                                SacHeaders.setPhasePicks(sac, this.quakeml, this.extendedPhases, this.synthetic);
+                                SacHeaders.setPhasePicks(sac, this.event, this.extendedPhases, this.synthetic);
                             }
                         } else {
                             if (this.synthetic != null) {

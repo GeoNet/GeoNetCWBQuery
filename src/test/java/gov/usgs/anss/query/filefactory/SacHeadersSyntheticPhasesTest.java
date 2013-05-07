@@ -19,14 +19,16 @@
 package gov.usgs.anss.query.filefactory;
 
 import edu.sc.seis.TauP.SacTimeSeries;
-import java.util.ArrayList;
-import java.util.List;
-import nz.org.geonet.quakeml.v1_0_1.client.QuakemlFactory;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
+import nz.org.geonet.simplequakeml.domain.Event;
+import nz.org.geonet.simplequakeml.domain.Pick;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 /**
@@ -360,9 +362,14 @@ public class SacHeadersSyntheticPhasesTest {
         sac.kcmpnm = "HHN";
         sac.khole = "10";
 
-        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersSyntheticPhasesTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null);
+        ArrayList picks = new ArrayList();
+        picks.add(new Pick("S*", "manual", "confirmed", "2007-05-12T07:41:21.875Z", 0.29f, "NZ", "TSZ", null, "HHN"));
 
-        sac = SacHeaders.setPhasePicks(sac, quakeml, false, null);
+        Event event = new Event("smi:geonet.org.nz/event/2737452g", "earthquake", "GNS", "2007-05-12T07:41:04.874Z", -40.60804f, 176.13933f
+                , 17.9463f, 4.389f, "ML", picks);
+
+
+        sac = SacHeaders.setPhasePicks(sac, event, false, null);
 
         assertEquals("pick 0 name", "S* mc", sac.kt0);
         assertEquals("pick 0 time", 17.001, sac.t0, Math.ulp((float) sac.t0));
@@ -387,9 +394,13 @@ public class SacHeadersSyntheticPhasesTest {
         sac.kcmpnm = "EHZ";
         sac.khole = "10";
 
-        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersSyntheticPhasesTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null);
+        ArrayList picks = new ArrayList();
+        picks.add(new Pick("P*", "automatic", "confirmed", "2007-05-12T07:41:21.758Z", 0.95f, "NZ", "TRWZ", null, "EHZ"));
 
-        sac = SacHeaders.setPhasePicks(sac, quakeml, false, null);
+        Event event = new Event("smi:geonet.org.nz/event/2737452g", "earthquake", "GNS", "2007-05-12T07:41:04.874Z", -40.60804f, 176.13933f
+                , 17.9463f, 4.389f, "ML", picks);
+
+        sac = SacHeaders.setPhasePicks(sac, event, false, null);
 
         assertEquals("pick 0 name", "P* ac", sac.kt0);
         assertEquals("pick 0 time", 16.884, sac.t0, Math.ulp((float) sac.t0));
