@@ -20,16 +20,18 @@ package gov.usgs.anss.query.filefactory;
 
 import edu.sc.seis.TauP.SacTimeSeries;
 import gov.usgs.anss.query.metadata.ChannelMetaData;
-import java.util.ArrayList;
-import java.util.List;
-import nz.org.geonet.quakeml.v1_0_1.client.QuakemlFactory;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
+import nz.org.geonet.simplequakeml.domain.Event;
+import nz.org.geonet.simplequakeml.domain.Pick;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -219,9 +221,10 @@ public class SacHeadersTest {
 
         sac.iztype = SacTimeSeries.IB;
 
-        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersTest.class.getResourceAsStream("quakeml_2732452.xml"), null);
+        Event event = new Event("smi:geonet.org.nz/event/2737452g", "earthquake", "GNS", "2007-05-12T07:41:04.874Z", -40.60804f, 176.13933f
+                , 17.9463f, 4.389f, "ML", null);
 
-        sac = SacHeaders.setEventHeader(sac, quakeml);
+        sac = SacHeaders.setEventHeader(sac, event);
 
         assertEquals("year", sac.nzyear, 2007);
         assertEquals("jday", sac.nzjday, 132);
@@ -232,11 +235,11 @@ public class SacHeadersTest {
         assertEquals("b", sac.b, -6.648770e+02d, 0.0);
         assertEquals("e", sac.e, 1.135113e+03, 0.0);
         assertEquals("iztype", sac.iztype, SacTimeSeries.IO);
-        assertEquals("lat", sac.evla, eventLat, 0.0);
+        assertEquals("lat", sac.evla, eventLat, 0.00001);
 
-        assertEquals("lon", sac.evlo, eventLon, 0.0);
-        assertEquals("dep", sac.evdp, eventDepth, 0.0);
-        assertEquals("mag", sac.mag, eventMag, 0.0);
+        assertEquals("lon", sac.evlo, eventLon, 0.00001);
+        assertEquals("dep", sac.evdp, eventDepth, 0.1);
+        assertEquals("mag", sac.mag, eventMag, 0.001);
         assertEquals("imagtyp", sac.imagtyp, 54);
         assertEquals("ievtyp", sac.ievtyp, 40);
         assertEquals("lcalda", sac.lcalda, 1);
@@ -268,9 +271,10 @@ public class SacHeadersTest {
 
         sac.iztype = SacTimeSeries.IB;
 
-        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersTest.class.getResourceAsStream("quakeml_1870524.xml"), null);
+    Event event = new Event("smi:geonet.org.nz/event/1870524g", "earthquake", "GNS", "2001-09-06T22:07:32.370Z", -39.5266f, 175.70213f
+            , 12.0f, 0.0f, "ML", null);
 
-        sac = SacHeaders.setEventHeader(sac, quakeml);
+        sac = SacHeaders.setEventHeader(sac, event);
 
         assertEquals("year", sac.nzyear, 2001);
         assertEquals("jday", sac.nzjday, 249);
@@ -281,10 +285,10 @@ public class SacHeadersTest {
         assertEquals("b", sac.b, 0.0, 0.0);
         assertEquals("e", sac.e, 1799.99, 0.0);
         assertEquals("iztype", sac.iztype, SacTimeSeries.IO);
-        assertEquals("lat", sac.evla, eventLat, 0.0);
+        assertEquals("lat", sac.evla, eventLat, 0.00001);
 
-        assertEquals("lon", sac.evlo, eventLon, 0.0);
-        assertEquals("dep", sac.evdp, eventDepth, 0.0);
+        assertEquals("lon", sac.evlo, eventLon, 0.00001);
+        assertEquals("dep", sac.evdp, eventDepth, 0.01);
         assertEquals("mag", sac.mag, eventMag, 0.0);
         assertEquals("imagtyp", sac.imagtyp, 54);
         assertEquals("ievtyp", sac.ievtyp, 40);
@@ -335,17 +339,22 @@ public class SacHeadersTest {
 
     @Test
     public void testSetPhasePicks() throws Exception {
-        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersTest.class.getResourceAsStream("quakeml_2732452.xml"), null);
+
+        ArrayList picks = new ArrayList();
+        picks.add(new Pick("S*", "manual", "confirmed", "2007-05-12T07:41:21.875Z", 0.29f, "NZ", "TSZ", null, "HHN"));
+
+        Event event = new Event("smi:geonet.org.nz/event/2737452g", "earthquake", "GNS", "2007-05-12T07:41:04.874Z", -40.60804f, 176.13933f
+                , 17.9463f, 4.389f, "ML", picks);
 
         SacTimeSeries sac = new SacTimeSeries();
         sac.knetwk = "NZ";
         sac.kstnm = "TSZ";
         sac.kcmpnm = "HHN";
 
-        sac = SacHeaders.setPhasePicks(sac, quakeml);
+        sac = SacHeaders.setPhasePicks(sac, event);
 
         assertEquals("P", sac.kt0, "S* mc");
-        assertEquals("P t", sac.t0, 17.001d, 0.0);
+        assertEquals("P t", sac.t0, 17.001d, 0.00001);
 
         sac = new SacTimeSeries();
 
@@ -356,17 +365,22 @@ public class SacHeadersTest {
     @Test
     public void testSetPhasePicksXed() throws Exception {
         // Checks that a pick with zero weight gets a mode of rejected.
-        Quakeml quakeml = new QuakemlFactory().getQuakeml(SacHeadersTest.class.getResourceAsStream("quakeml_2732452.xml"), null);
+
+        ArrayList picks = new ArrayList();
+        picks.add(new Pick("P*", "automatic", null, "2007-05-12T07:41:17.068Z", 0.0f, "NZ", "HOWZ", null, "EHZ"));
+
+        Event event = new Event("smi:geonet.org.nz/event/2737452g", "earthquake", "GNS", "2007-05-12T07:41:04.874Z", -40.60804f, 176.13933f
+                , 17.9463f, 4.389f, "ML", picks);
 
         SacTimeSeries sac = new SacTimeSeries();
         sac.knetwk = "NZ";
         sac.kstnm = "HOWZ";
         sac.kcmpnm = "EHZ";
 
-        sac = SacHeaders.setPhasePicks(sac, quakeml);
+        sac = SacHeaders.setPhasePicks(sac, event);
 
         assertEquals("P", sac.kt0, "P* ar");
-        assertEquals("P t", sac.t0, 12.194d, 0.0);
+        assertEquals("P t", sac.t0, 12.194d, 0.0001);
     }
 
     @Test

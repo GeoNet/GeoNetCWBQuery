@@ -21,13 +21,11 @@ package gov.usgs.anss.query;
 
 import gov.usgs.anss.query.filefactory.SacHeaders.SacEventType;
 import gov.usgs.anss.query.filefactory.SacHeaders.SacMagType;
-import nz.org.geonet.quake.domain.geojson.Feature;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
-import org.joda.time.format.ISODateTimeFormat;
 
 public class CustomEvent {
 
@@ -52,15 +50,6 @@ public class CustomEvent {
 			.appendOptional(parseMillisFormat.getParser())
 			.toFormatter()
 			.withZone(DateTimeZone.forID("UTC"));
-
-    public CustomEvent(Feature quake) {
-        String isoDT = quake.getProperties().getOrigintime().replaceFirst(" ", "T") + 'Z';
-        this.eventTime = ISODateTimeFormat.dateTime().withZone(DateTimeZone.forID("UTC")).parseDateTime(isoDT);
-        this.eventLat = quake.getGeometry().getLatitude();
-        this.eventLon = quake.getGeometry().getLongitude();
-        this.eventDepth = quake.getProperties().getDepth();
-        this.eventMag = quake.getProperties().getMagnitude();
-    }
 
     /**
      * @return the eventTime

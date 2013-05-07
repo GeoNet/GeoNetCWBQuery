@@ -23,24 +23,24 @@ import edu.sc.seis.TauP.SacTimeSeriesTestUtil;
 import gov.usgs.anss.query.CustomEvent;
 import gov.usgs.anss.query.cwb.data.CWBDataServerMSEEDMock;
 import gov.usgs.anss.query.metadata.MetaDataServerMock;
+import nz.org.geonet.simplequakeml.domain.Event;
+import nz.org.geonet.simplequakeml.domain.Pick;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import nz.org.geonet.quakeml.v1_0_1.client.QuakemlFactory;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -51,6 +51,12 @@ public class SacFileFactoryTest {
 
     @Parameters
     public static Collection data() throws Exception {
+        ArrayList picks = new ArrayList();
+        picks.add(new Pick("S*", "manual", "confirmed", "2007-05-12T07:41:21.875Z", 0.29f, "NZ", "TSZ", null, "HHN"));
+
+        Event event1 = new Event("smi:geonet.org.nz/event/2737452g", "earthquake", "GNS", "2007-05-12T07:41:04.874Z", -40.60804f, 176.13933f
+                , 17.9463f, 4.389f, "ML", picks);
+
         return Arrays.asList(new Object[][]{
                     {
                         new CWBDataServerMSEEDMock("dummy", 80),
@@ -229,7 +235,7 @@ public class SacFileFactoryTest {
                         true, // paz files expected
                         new String[]{
                             "/test-data/gov/usgs/anss/query/filefactory/event/NZTSZ__HHN10.sac.pz",},
-                        new QuakemlFactory().getQuakeml(SacFileFactoryTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null), //quakml
+                        event1,
                         true, //picks
                         null, //customEvent
                         null, //synthetic
@@ -256,7 +262,7 @@ public class SacFileFactoryTest {
                         true, // paz files expected
                         new String[]{
                             "/test-data/gov/usgs/anss/query/filefactory/event/NZTSZ__HHN10.sac.pz",},
-                        new QuakemlFactory().getQuakeml(SacFileFactoryTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null), //quakml
+                        event1,
                         false, //picks
                         null, //customEvent
                         null, //synthetic
@@ -283,7 +289,7 @@ public class SacFileFactoryTest {
                         true, // paz files expected
                         new String[]{
                             "/test-data/gov/usgs/anss/query/filefactory/event/NZTSZ__HHN10.sac.pz",},
-                        new QuakemlFactory().getQuakeml(SacFileFactoryTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null), //quakml
+                        event1,
                         false, //picks
                         null, //customEvent
                         "iasp91", //synthetic
@@ -310,7 +316,7 @@ public class SacFileFactoryTest {
                         true, // paz files expected
                         new String[]{
                             "/test-data/gov/usgs/anss/query/filefactory/event/NZTSZ__HHN10.sac.pz",},
-                        new QuakemlFactory().getQuakeml(SacFileFactoryTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null), //quakml
+                        event1,
                         true, //picks
                         null, //customEvent
                         "iasp91", //synthetic
@@ -338,13 +344,13 @@ public class SacFileFactoryTest {
                         true, // paz files expected
                         new String[]{
                             "/test-data/gov/usgs/anss/query/filefactory/event/NZTSZ__HHN10.sac.pz",},
-                        new QuakemlFactory().getQuakeml(SacFileFactoryTest.class.getResourceAsStream("/gov/usgs/anss/query/filefactory/quakeml_2732452.xml"), null), //quakml
+                        event1,
                         false, //picks
                         null, //customEvent
                         "iasp91", //synthetic
                         true //extendedPhases
                     },
-                    { // No quakeml and custom event add extended picks from iasp91. 
+                    { // No quakeml and custom event add extended picks from iasp91.
                         new CWBDataServerMSEEDMock("dummy", 80),
                         new MetaDataServerMock("dummy", 2052),
                         "NZTSZ..HHN10",
@@ -388,7 +394,7 @@ public class SacFileFactoryTest {
     private String pazUnits;
     private boolean pazFilesExpected;
     String[] expectedPazFiles;
-    private Quakeml quakeml;
+    private Event event;
     private boolean gaps;
     private boolean picks;
     private CustomEvent customEvent;
@@ -397,7 +403,7 @@ public class SacFileFactoryTest {
     private ArrayList<SacTimeSeries> expectedSac;
     private Iterator<SacTimeSeries> expectedSacIter;
 
-    public SacFileFactoryTest(CWBDataServerMSEEDMock cwbServer, MetaDataServerMock mdServer, String nsclSelectString, String fileMask, boolean outputExpected, String[] mseedFiles, String[] nscls, String[] pazFiles, String[] expectedSacFiles, DateTime begin, double duration, Integer fill, boolean gaps, boolean trim, String pazUnits, boolean pazFilesExpected, String[] expectedPazFiles, Quakeml quakeml, boolean picks, CustomEvent customEvent, String synthetic, boolean extendedPhases) throws Exception {
+    public SacFileFactoryTest(CWBDataServerMSEEDMock cwbServer, MetaDataServerMock mdServer, String nsclSelectString, String fileMask, boolean outputExpected, String[] mseedFiles, String[] nscls, String[] pazFiles, String[] expectedSacFiles, DateTime begin, double duration, Integer fill, boolean gaps, boolean trim, String pazUnits, boolean pazFilesExpected, String[] expectedPazFiles, Event event, boolean picks, CustomEvent customEvent, String synthetic, boolean extendedPhases) throws Exception {
         this.cwbServer = cwbServer;
         this.mdServer = mdServer;
         this.nsclSelectString = nsclSelectString;
@@ -414,7 +420,7 @@ public class SacFileFactoryTest {
         this.pazUnits = pazUnits;
         this.pazFilesExpected = pazFilesExpected;
         this.expectedPazFiles = expectedPazFiles;
-        this.quakeml = quakeml;
+        this.event = event;
         this.gaps = gaps;
         this.picks = picks;
         this.customEvent = customEvent;
@@ -456,7 +462,7 @@ public class SacFileFactoryTest {
         sacFileFactory.setFill(this.fill);
         sacFileFactory.setGaps(this.gaps);
         sacFileFactory.setPzunit(this.pazUnits);
-        sacFileFactory.setQuakeML(this.quakeml);
+        sacFileFactory.setEvent(this.event);
         sacFileFactory.setPicks(picks);
 
         sacFileFactory.makeFiles(begin, duration, nsclSelectString, folder.getRoot().getAbsolutePath() + File.separator + fileMask);

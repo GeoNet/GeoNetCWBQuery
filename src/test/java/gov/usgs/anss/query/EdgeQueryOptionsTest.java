@@ -18,18 +18,10 @@
  */
 package gov.usgs.anss.query;
 
-import gov.usgs.anss.query.EdgeQueryOptions.OutputType;
 import gov.usgs.anss.query.filefactory.SacHeaders.SacEventType;
 import gov.usgs.anss.query.filefactory.SacHeaders.SacMagType;
-import java.io.Reader;
-import java.util.Date;
-import nz.org.geonet.quakeml.v1_0_1.domain.Quakeml;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -125,7 +117,7 @@ public class EdgeQueryOptionsTest {
 		System.out.println("testSynthFlags");
 		// First test the defaults
 		EdgeQueryOptions instance = new EdgeQueryOptions(new String[]{
-			"-event", "geonet:32266622",
+			"-event", "geonet:2013p325188",
 		});
 
 		assertEquals("picks", true, instance.picks);
@@ -135,7 +127,7 @@ public class EdgeQueryOptionsTest {
 		
 		// Now add some synth flags
 		instance = new EdgeQueryOptions(new String[]{
-			"-event", "geonet:32266622",
+			"-event", "geonet:2013p325188",
 			"-nopicks", "-synthetic", "-extended-phases",
 		});
 
@@ -146,68 +138,10 @@ public class EdgeQueryOptionsTest {
 
 		// Now test synthetic arse
 		instance = new EdgeQueryOptions(new String[]{
-			"-event", "geonet:32266622",
+			"-event", "geonet:2013p325188",
 			"-synthetic:arse",
 		});
 
 		assertEquals("synthetic", "arse", instance.getSynthetic());
 	}
-
-    @Test
-    public void testGeojsonSC3Event() {
-        System.out.println("testGeojsonSC3Event");
-
-        /**
-         * Test against known event 2012p618953, response should be:
-         * {
-         *   "type":"FeatureCollection",
-         *   "features":[
-         *     {
-         *       "type":"Feature",
-         *       "id":"quake.2012p618953",
-         *       "geometry":{
-         *         "type":"Point",
-         *         "coordinates":[
-         *           174.46893,
-         *           -41.032227
-         *         ]
-         *       },
-         *       "geometry_name":"origin_geom",
-         *       "properties":{
-         *         "publicid":"2012p618953",
-         *         "origintime":"2012-08-17 00:18:12.209000",
-         *         "depth":64.04492,
-         *         "magnitude":2.3195808,
-         *         "status":"automatic",
-         *         "agency":"WEL(GNS_Primary)",
-         *         "updatetime":"2012-08-17 00:20:31.343000"
-         *       }
-         *     }
-         *   ],
-         *   "crs":{
-         *     "type":"EPSG",
-         *     "properties":{
-         *       "code":"4326"
-         *     }
-         *   }
-         * }
-         */
-
-        EdgeQueryOptions instance = new EdgeQueryOptions(new String[]{
-                "-event", "geonet:2012p618953",
-        });
-
-        assertNotNull("GeoJson Custom Event", instance.getCustomEvent());
-
-        DateTime ot = new DateTime(2012, 8, 17, 0, 18, 12, 209, DateTimeZone.UTC);
-        assertEquals("OriginTime", ot, instance.getBegin());
-
-        // Depth in metres.
-        assertEquals("Depth", 64044.92, instance.getCustomEvent().getEventDepth(), Math.ulp(instance.getCustomEvent().getEventDepth()));
-
-        assertEquals("Magnitude", Double.valueOf(2.3195808), instance.getCustomEvent().getEventMag());
-
-        assertEquals("Lat", Double.valueOf(-41.032227), instance.getCustomEvent().getEventLat());
-        assertEquals("Lon", Double.valueOf(174.46893), instance.getCustomEvent().getEventLon());
-    }
 }
