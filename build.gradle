@@ -1,0 +1,87 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+group = 'nz.org.geonet'
+version = '4.2.0-GRADLE'
+
+mainClassName = "gov.usgs.anss.query.EdgeQueryClient"
+tempClassDir = new File("build/temporary")
+
+repositories {
+  maven {
+        credentials {
+            username geonetUser
+            password geonetPassword
+        }
+        url 'https://geonet.artifactoryonline.com/geonet/all'
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.sf.proguard:proguard-gradle:4.11'
+    }
+}
+
+dependencies {
+  compile group: 'gov.usgs.anss', name: 'EdgeFile', version: 'unknown-1'
+  compile group: 'gov.usgs.anss', name: 'Usgs', version: 'unknown-1'
+  compile group: 'joda-time', name: 'joda-time', version: '1.6'
+  compile group: 'nz.org.geonet', name: 'simple-quakeml', version: '1.0.2'
+  compile group: 'TauP', name: 'TauP-no-sac-timeseries', version: '1.1.7'
+  compile group: 'log4j', name: 'log4j', version: '1.2.8'
+  compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
+}
+
+jar {
+        manifest {
+                attributes(
+			"provider": "gradle",
+			"Implementation-Title": project.name,
+			"Implementation-Version": project.version,
+			"Main-Class": project.mainClassName
+		)
+        }
+}
+
+task dirs {
+  tempClassDir.mkdirs()
+}
+
+task unzip(type: Copy, dependsOn: [jar, dirs]) {
+  configurations.compile.each { File file -> from zipTree(file) into tempClassDir }
+  from zipTree(project.jar.archivePath.getPath()) into tempClassDir
+}
+task rezip(type: Jar, dependsOn: unzip, overwrite: true) {
+  	from tempClassDir
+        manifest {
+                attributes(
+			"provider": "gradle",
+			"Implementation-Title": project.name,
+			"Implementation-Version": project.version,
+			"Main-Class": project.mainClassName
+		)
+        }
+  	baseName = 'repacked'
+}
+
+task repack(type: proguard.gradle.ProGuardTask, dependsOn: rezip) {
+
+  injars(rezip.archivePath)
+  outjars(project.jar.archivePath.getPath())
+
+  libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+
+  verbose
+  ignorewarnings
+  dontobfuscate
+  dontshrink
+  dontoptimize
+
+  keep 'public class gov.usgs.anss.query.EdgeQueryClient { \
+        public static void main(java.lang.String[]); \
+    }'
+}
