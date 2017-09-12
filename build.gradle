@@ -5,7 +5,8 @@ group = 'nz.org.geonet'
 version = '4.2.0-GRADLE'
 
 mainClassName = "gov.usgs.anss.query.EdgeQueryClient"
-tempClassDir = new File("build/temporary")
+
+project.file('build/temporary').mkdirs()
 
 repositories {
   maven {
@@ -22,7 +23,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'net.sf.proguard:proguard-gradle:4.11'
+        classpath 'net.sf.proguard:proguard-gradle:5.2.1'
     }
 }
 
@@ -47,16 +48,12 @@ jar {
         }
 }
 
-task dirs {
-  tempClassDir.mkdirs()
-}
-
-task unzip(type: Copy, dependsOn: [jar, dirs]) {
-  configurations.compile.each { File file -> from zipTree(file) into tempClassDir }
-  from zipTree(project.jar.archivePath.getPath()) into tempClassDir
+task unzip(type: Copy, dependsOn: [jar]) {
+  configurations.compile.each { File file -> from zipTree(file) into 'build/temporary' }
+  from zipTree(project.jar.archivePath.getPath()) into 'build/temporary'
 }
 task rezip(type: Jar, dependsOn: unzip, overwrite: true) {
-  	from tempClassDir
+  	from 'build/temporary'
         manifest {
                 attributes(
 			"provider": "gradle",
