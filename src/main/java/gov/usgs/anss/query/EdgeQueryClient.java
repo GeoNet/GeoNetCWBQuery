@@ -18,27 +18,25 @@
  */
 package gov.usgs.anss.query;
 
-import gov.usgs.anss.edge.*;
+import gov.usgs.anss.edge.IllegalSeednameException;
 import gov.usgs.anss.query.EdgeQueryOptions.OutputType;
-import gov.usgs.anss.query.cwb.holdings.CWBHoldingsServerImpl;
 import gov.usgs.anss.query.outputter.Filename;
 import gov.usgs.anss.seed.MiniSeed;
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Collections;
-
-import java.text.DecimalFormat;
-import java.util.Comparator;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /** This class is the main class for CWBQuery which allows the user to make queries
  * against all files on a CWB or Edge computer.  The program has two modes :
@@ -77,6 +75,7 @@ import org.joda.time.format.ISODateTimeFormat;
  *-dbg Turn on the debug flag
  *
  * @author davidketchum
+ * @updated Howard Wu 29/09/2017
  * TODO: consider prepending (e.g.) - if (logger.getLevel().intValue() <= Level.FINEST.intValue()) - to low level logger statements with concatenated toString parameter(s).
  */
 public class EdgeQueryClient {
@@ -140,36 +139,6 @@ public class EdgeQueryClient {
             // for each line of input, read it, reformat it with single quotes, send to server
             int nline = 0;
             int totblks = 0;
-            // particularly for the DCC we want this program to not error out if we cannot connect to the server
-            // So make sure we can connect and print messages
-            Socket ds = null;
-            while (ds == null) {
-                try {
-                    ds = new Socket(options.host, options.port);
-                } catch (IOException e) {
-                    ds = null;
-                    if (e != null) {
-                        if (e.getMessage() != null) {
-                            if (e.getMessage().indexOf("Connection refused") >= 0) {
-                                logger.warning("Got a connection refused. " + options.host + "/" + options.port + "  Is the server up?  Wait 20 and try again");
-                            }
-                        } else {
-                            logger.warning("Got IOError opening socket to server e=" + e);
-                        }
-                    } else {
-                        logger.warning("Got IOError opening socket to server e=" + e);
-                    }
-                    try {
-                        Thread.sleep(20000);
-                    } catch (InterruptedException ex) {
-                        // This isn't necessarily a major issue, and for the purposes
-                        // of sleep, we really don't care.
-                        logger.log(Level.FINE, "sleep interrupted.", ex);
-                    }
-                }
-            }
-            InputStream in = ds.getInputStream();        // Get input and output streams
-            OutputStream outtcp = ds.getOutputStream();
             msConnect += (System.currentTimeMillis() - startPhase);
             startPhase = System.currentTimeMillis();
             while ((line = infile.readLine()) != null) {
@@ -197,12 +166,29 @@ public class EdgeQueryClient {
 
                 long maxTime = 0;
                 int ndups = 0;
-                line = options.getSingleQuotedCommand();
+                line = options.getFDSNDataSelectPostParam();
                 try {
                     msSetup += (System.currentTimeMillis() - startPhase);
                     startPhase = System.currentTimeMillis();
                     boolean perfStart = true;
-                    outtcp.write(line.getBytes());
+
+                    // request to FDSN service
+                    HttpURLConnection conn;
+                    InputStream in;
+                    String serviceUrl = QueryProperties.getFDSNDataselectQueryUrl();
+                    try {
+                        URL url = new URL(serviceUrl);
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Accept", "application/vnd.fdsn.mseed");
+                        conn.setDoOutput(true);
+                        conn.getOutputStream().write(line.getBytes());
+                        in = conn.getInputStream();
+                    } catch (IOException ex) {
+                        logger.warning("FDSN service " + serviceUrl + " error:" + ex);
+                        continue;
+                    }
+
                     int iblk = 0;
                     NSCL nscl = null;
                     boolean eof = false;
@@ -214,30 +200,17 @@ public class EdgeQueryClient {
                         try {
                             // Try to read a mini-seed, if it failes mark eof
                             if (read(in, b, 0, (options.gapsonly ? 64 : 512))) {
-                                
-                                if (b[0] == '<' && b[1] == 'E' && b[2] == 'O' && b[3] == 'R' && b[4] == '>') {
-                                    eof = true;
-                                    ms = null;
-
-                                    logger.fine("EOR found");
-
-                                } else {
+                                ms = new MiniSeed(b);
+                                logger.finest("" + ms);
+                                if (!options.gapsonly && ms.getBlockSize() != 512) {
+                                    read(in, b, 512, ms.getBlockSize() - 512);
                                     ms = new MiniSeed(b);
-                                    logger.finest("" + ms);
-                                    if (!options.gapsonly && ms.getBlockSize() != 512) {
-                                        read(in, b, 512, ms.getBlockSize() - 512);
-                                        ms = new MiniSeed(b);
-                                    }
-                                    iblk++;
-                                    totblks++;
                                 }
+                                iblk++;
+                                totblks++;
                             } else {
                                 eof = true;         // still need to process this last channel THIS SHOULD NEVER  HAPPEN unless socket is lost
                                 ms = null;
-                                logger.warning("   *** Unexpected EOF Found");
-                                if (out != null) {
-                                    System.exit(1);      // error out with no file
-                                }
                             }
                             if (perfStart) {
                                 msCommand += (System.currentTimeMillis() - startPhase);
@@ -386,35 +359,22 @@ public class EdgeQueryClient {
                                 (System.currentTimeMillis() - startTime) + " ms " +
                                 (iblk * 1000L / Math.max(System.currentTimeMillis() - startTime, 1)) + " b/s " + npur + " #dups=" + ndups);
                     }
+
+                    if(in!=null)
+                        in.close();
+                    if(conn!=null)
+                        conn.disconnect();
+
                     if (out == null) {
                         return blksAll;      // If called in no file output mode, return the blocks
                     }
                     blks.clear();
-                } catch (UnknownHostException e) {
-                    logger.severe("EQC main: Host is unknown=" + options.host + "/" + options.port);
-                    if (out != null) {
-                        System.exit(1);
-                    }
-                    return null;
                 } catch (IOException e) {
-                    if (e.getMessage().equalsIgnoreCase("Connection refused")) {
-                        logger.severe("The connection was refused.  Server is likely down or is blocked. This should never happen.");
-                        return null;
-                    } else {
-                        logger.severe(e + " EQC main: IO error opening/reading socket=" + options.host + "/" + options.port);
-                        if (out != null) {
-                            System.exit(1);
-                        }
-                    }
+                    logger.severe("IO error while getting data from FDSN:" + e.getLocalizedMessage());
+                    return null;
                 }
             }       // End of readline
-            outtcp.write("\n".getBytes());      // Send end of request marker to query
-            if (ds.isClosed()) {
-                try {
-                    ds.close();
-                } catch (IOException e) {
-                }
-            }
+
             if (options.perfMonitor) {
                 long msEnd = System.currentTimeMillis() - startPhase;
                 logger.info("Perf setup=" + msSetup + " connect=" + msConnect + " Cmd=" + msCommand + " xfr=" + msTransfer + " out=" + msOutput +
@@ -471,12 +431,8 @@ public class EdgeQueryClient {
 
         EdgeQueryOptions options = new EdgeQueryOptions(args);
 
-
-        CWBHoldingsServerImpl cwbServer = new CWBHoldingsServerImpl(options.host, options.port);
-
-        // The ls option does not require any args checking
         if (options.isListQuery()) {
-            logger.info(cwbServer.listChannels(options.getBegin(), options.getDuration()));
+            logger.info("List files is no longer supported.");
 		} else {
             query(options);
         }

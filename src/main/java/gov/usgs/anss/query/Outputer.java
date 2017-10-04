@@ -18,9 +18,10 @@
  */
 package gov.usgs.anss.query;
 
-import java.util.ArrayList;
-import java.io.IOException;
 import gov.usgs.anss.seed.MiniSeed;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**

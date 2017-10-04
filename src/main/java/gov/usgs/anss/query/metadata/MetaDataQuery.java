@@ -19,12 +19,13 @@
 package gov.usgs.anss.query.metadata;
 
 import gov.usgs.anss.query.NSCL;
+import org.joda.time.DateTime;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.logging.Logger;
-import org.joda.time.DateTime;
 
 /**
  *

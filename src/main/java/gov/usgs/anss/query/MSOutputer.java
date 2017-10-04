@@ -19,12 +19,13 @@
 package gov.usgs.anss.query;
 
 import gov.usgs.anss.seed.MiniSeed;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import org.apache.commons.io.FileUtils;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *

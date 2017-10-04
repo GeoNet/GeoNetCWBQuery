@@ -24,7 +24,8 @@ import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -45,24 +46,28 @@ public class CWBQueryFormatterTest {
     }
 
     @Test
-    public void testListQuery() {
-        DateTime begin = new DateTime(2009, 1, 1, 11, 11, 11, 0, tz);
-        Double duration = 1800d;
-        String result = CWBQueryFormatter.listChannels(begin, duration);
-        assertEquals("list query 1", "'-b' '2009/01/01 11:11:11.000' '-d' '1800.0' '-lsc'\n", result);
-
-    }
-
-    @Test
     public void testMiniSEEDQuery() {
         NSCL nscl = NSCL.stringToNSCL("NZMRZ..HHZ10");
         DateTime begin = new DateTime(2009, 1, 1, 0, 0, 0, 0, tz);
         Double duration = 1800d;
-        String result = CWBQueryFormatter.miniSEED(begin, duration, nscl);
-        assertEquals("data query 1", "'-b' '2009/01/01 00:00:00.000' '-s' 'NZMRZ..HHZ10' '-d' '1800.0'\t", result);
-        result = CWBQueryFormatter.miniSEED(begin, duration, "NZMRZ..HHZ10");
-        assertEquals("data query 1", "'-b' '2009/01/01 00:00:00.000' '-s' 'NZMRZ..HHZ10' '-d' '1800.0'\t", result);
-        result = CWBQueryFormatter.miniSEED(begin.withMillisOfSecond(799), 300d, "NZMRZ..HHZ10");
-        assertEquals("data query 1", "'-b' '2009/01/01 00:00:00.799' '-s' 'NZMRZ..HHZ10' '-d' '300.0'\t", result);
+        String result = CWBQueryFormatter.fdsnQueryBody(begin, duration, nscl);
+        assertEquals("data query 1", "NZ MRZ* 10 HHZ 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n", result);
+        result = CWBQueryFormatter.fdsnQueryBody(begin, duration, "NZMRZ..HHZ10");
+        assertEquals("data query 1", "NZ MRZ* 10 HHZ 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n", result);
+        result = CWBQueryFormatter.fdsnQueryBody(begin.withMillisOfSecond(799), 300d, "NZMRZ..HHZ10");
+        assertEquals("data query 1", "NZ MRZ* 10 HHZ 2009-01-01T00:00:79.000000 2009-01-01T00:05:79.000000\n", result);
+        result = CWBQueryFormatter.fdsnQueryBody(begin, duration, "NZA");
+        assertEquals("data query 1", "NZ A* * * 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n", result);
+        result = CWBQueryFormatter.fdsnQueryBody(begin, duration, "NZAPZ..LH[ZN]..");
+        assertEquals("data query 1", "NZ APZ* * LHZ 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n" +
+                "NZ APZ* * LHN 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n", result);
+        result = CWBQueryFormatter.fdsnQueryBody(begin, duration, "NZAPZ..L");
+        assertEquals("data query 1", "NZ APZ* * L* 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n", result);
+        result = CWBQueryFormatter.fdsnQueryBody(begin, duration, "NZ.....L[HN]Z.*");
+        assertEquals("data query 1", "NZ * * LHZ 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n" +
+                "NZ * * LNZ 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n", result);
+        result = CWBQueryFormatter.fdsnQueryBody(begin, duration, "NZA.*|NZB.*");
+        assertEquals("data query 1", "NZ A* * * 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n" +
+                "NZ B* * * 2009-01-01T00:00:00.000000 2009-01-01T00:30:00.000000\n", result);
     }
 }

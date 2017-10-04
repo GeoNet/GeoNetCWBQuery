@@ -18,17 +18,20 @@
  */
 package gov.usgs.anss.query;
 
-import edu.iris.Fissures.codec.*;
+import edu.iris.Fissures.codec.Steim1;
+import edu.iris.Fissures.codec.Steim2;
+import edu.iris.Fissures.codec.SteimException;
 import gov.usgs.anss.seed.MiniSeed;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.logging.Logger;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.GregorianCalendar;
+import java.util.logging.Logger;
 
 /** This class represent a time series chunk which is zero filled if data is
  * missing.  The idea is to allow creation, population by a series of blocks

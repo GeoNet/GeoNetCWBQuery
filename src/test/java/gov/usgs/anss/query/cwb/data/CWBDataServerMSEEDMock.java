@@ -20,6 +20,8 @@ package gov.usgs.anss.query.cwb.data;
 
 import gov.usgs.anss.edge.IllegalSeednameException;
 import gov.usgs.anss.seed.MiniSeed;
+import org.joda.time.DateTime;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -38,7 +39,7 @@ public class CWBDataServerMSEEDMock implements CWBDataServer {
     private ArrayList<TreeSet<MiniSeed>> expResult;
     private Iterator<TreeSet<MiniSeed>> iter;
 
-    public CWBDataServerMSEEDMock(String host, int port) {
+    public CWBDataServerMSEEDMock() {
 
     }
 

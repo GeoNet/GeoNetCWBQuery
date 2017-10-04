@@ -18,18 +18,20 @@
  */
 package gov.usgs.anss.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import gov.usgs.anss.seed.*;
 import edu.sc.seis.TauP.SacTimeSeries;
 import gov.usgs.anss.query.cwb.data.CWBDataServer;
-import gov.usgs.anss.query.cwb.data.CWBDataServerMSEED;
+import gov.usgs.anss.query.cwb.data.FDSNDataServerMSEED;
 import gov.usgs.anss.query.filefactory.SacFileFactory;
-import gov.usgs.anss.query.metadata.MetaDataServerImpl;
+import gov.usgs.anss.query.metadata.FDSNMetaDataServerImpl;
+import gov.usgs.anss.seed.MiniSeed;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
  * @author davidketchum
+ * @updated Howard Wu 29/09/2017
  */
 public class SacOutputer extends Outputer {
 
@@ -46,11 +48,9 @@ public class SacOutputer extends Outputer {
     public SacOutputer(EdgeQueryOptions options) {
         this.options = options;
         this.sacFF = new SacFileFactory();
-        this.cwbServer = new CWBDataServerMSEED(options.host, options.port);
+        this.cwbServer = new FDSNDataServerMSEED();
         sacFF.setCWBDataServer(this.cwbServer);
-        sacFF.setMetaDataServer(new MetaDataServerImpl(
-                QueryProperties.getGeoNetMetadataServerIP(),
-                QueryProperties.getGeoNetMetadataServerPort()));
+        sacFF.setMetaDataServer(new FDSNMetaDataServerImpl());
         parseExtras(options);
     }
 

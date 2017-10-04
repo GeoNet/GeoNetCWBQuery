@@ -19,6 +19,8 @@
 package gov.usgs.anss.query.metadata;
 
 import gov.usgs.anss.query.NSCL;
+import org.joda.time.DateTime;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.joda.time.DateTime;
 
 /**
  *
@@ -36,15 +37,6 @@ import org.joda.time.DateTime;
 public class MetaDataServerMock implements MetaDataServer {
 
     Map<String, String> responses;
-
-    /**
-     * Mock for meta data server testing.  No server is actually contacted.
-     *
-     * @param ip - dummy value, not used.
-     * @param port - dummy value, not used.
-     */
-    public MetaDataServerMock(String ip, int port) {
-    }
 
     /**
      * Loads SAC PAZ files (the same as the response from the meta data server.

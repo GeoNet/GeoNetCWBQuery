@@ -19,12 +19,14 @@
 package gov.usgs.anss.query.cwb.data;
 
 import gov.usgs.anss.seed.MiniSeed;
-import java.util.TreeSet;
 import org.joda.time.DateTime;
+
+import java.util.TreeSet;
 
 /**
  *
  * @author geoffc
+ * @updated Howard Wu 29/09/2017
  */
 public interface CWBDataServer {
 
@@ -35,10 +37,6 @@ public interface CWBDataServer {
 	boolean hasNext();
 
 	void quiet();
-
-	String getHost();
-
-	int getPort();
 
 	@Override
 	boolean equals(Object o);

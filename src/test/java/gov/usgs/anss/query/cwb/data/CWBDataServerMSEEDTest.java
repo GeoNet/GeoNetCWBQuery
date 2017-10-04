@@ -19,16 +19,6 @@
 package gov.usgs.anss.query.cwb.data;
 
 import gov.usgs.anss.seed.MiniSeed;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -38,7 +28,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -47,7 +46,7 @@ import static org.junit.Assert.*;
 @RunWith(Parameterized.class)
 public class CWBDataServerMSEEDTest {
 
-    private static CWBDataServerMSEED cwbServer;
+    private static FDSNDataServerMSEED cwbServer;
     private static DateTimeZone tz = DateTimeZone.forID("UTC");
 
     @BeforeClass
@@ -168,7 +167,7 @@ public class CWBDataServerMSEEDTest {
 
 
         ArrayList<TreeSet<MiniSeed>> result = new ArrayList<TreeSet<MiniSeed>>();
-        cwbServer = new CWBDataServerMSEED("cwb.geonet.org.nz", 80);
+        cwbServer = new FDSNDataServerMSEED();
         cwbServer.query(begin, duration, nsclSelectString);
 
         while (cwbServer.hasNext()) {

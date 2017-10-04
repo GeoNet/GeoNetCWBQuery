@@ -18,14 +18,15 @@
  */
 package gov.usgs.anss.query;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.GregorianCalendar;
-import gov.usgs.anss.seed.*;
-import java.util.logging.Logger;
+import gov.usgs.anss.seed.MiniSeed;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.GregorianCalendar;
+import java.util.logging.Logger;
 
 /**
  *

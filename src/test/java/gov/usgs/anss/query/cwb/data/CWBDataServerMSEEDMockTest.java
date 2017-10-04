@@ -18,12 +18,13 @@
  */
 package gov.usgs.anss.query.cwb.data;
 
-import gov.usgs.anss.query.cwb.data.CWBDataServerMSEEDMock;
-import java.util.TreeSet;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.util.TreeSet;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -42,7 +43,7 @@ public class CWBDataServerMSEEDMockTest {
     @Test
     public void testServerMock() {
 
-        CWBDataServerMSEEDMock cwbServer = new CWBDataServerMSEEDMock("dummy.net", 666);
+        CWBDataServerMSEEDMock cwbServer = new CWBDataServerMSEEDMock();
         String[] filenames = {
             "/test-data/gov/usgs/anss/query/filefactory/no-gaps/NZMRZ__HHE10.ms",
             "/test-data/gov/usgs/anss/query/filefactory/no-gaps/NZMRZ__HHN10.ms",
