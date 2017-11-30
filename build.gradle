@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'net.idlestate.download-dependencies'
 
 group = 'nz.org.geonet'
 version = '4.3.0-GRADLE'
@@ -9,28 +10,38 @@ mainClassName = "gov.usgs.anss.query.EdgeQueryClient"
 project.file('build/temporary').mkdirs()
 
 repositories {
-  maven {
-        credentials {
-            username geonetUser
-            password geonetPassword
+    maven {
+        credentials(AwsCredentials) {
+            accessKey AWS_ACCESS_KEY
+            secretKey AWS_SECRET_KEY
         }
-        url 'https://geonet.artifactoryonline.com/geonet/all'
+        url 's3://maven.geonet.org.nz'
     }
+    mavenCentral()
 }
 
 buildscript {
     repositories {
+        maven {
+            credentials(AwsCredentials) {
+                accessKey AWS_ACCESS_KEY
+                secretKey AWS_SECRET_KEY
+            }
+            url 's3://maven.geonet.org.nz'
+        }
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath 'net.sf.proguard:proguard-gradle:5.2.1'
+        classpath 'net.idlestate:gradle-download-dependencies-plugin:1.+'
     }
 }
 
 dependencies {
     compile group: 'gov.usgs.anss', name: 'EdgeFile', version: 'unknown-1'
     compile group: 'gov.usgs.anss', name: 'Usgs', version: 'unknown-1'
-    compile group: 'joda-time', name: 'joda-time', version: '1.6'
+    compile group: 'joda-time', name: 'joda-time', version: '2.1'
     compile group: 'TauP', name: 'TauP-no-sac-timeseries', version: '1.1.7'
     compile group: 'log4j', name: 'log4j', version: '1.2.8'
     compile group: 'commons-io', name: 'commons-io', version: '2.0.1'
@@ -42,47 +53,51 @@ dependencies {
 }
 
 jar {
-        manifest {
-                attributes(
-			"provider": "gradle",
-			"Implementation-Title": project.name,
-			"Implementation-Version": project.version,
-			"Main-Class": project.mainClassName
-		)
-        }
+    manifest {
+        attributes(
+                "provider": "gradle",
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Main-Class": project.mainClassName
+        )
+    }
 }
 
 task unzip(type: Copy, dependsOn: [jar]) {
-  configurations.compile.each { File file -> from zipTree(file) into 'build/temporary' }
-  from zipTree(project.jar.archivePath.getPath()) into 'build/temporary'
+    configurations.compile.each { File file -> from zipTree(file) into 'build/temporary' }
+    from zipTree(project.jar.archivePath.getPath()) into 'build/temporary'
 }
 task rezip(type: Jar, dependsOn: unzip, overwrite: true) {
-  	from 'build/temporary'
-        manifest {
-                attributes(
-			"provider": "gradle",
-			"Implementation-Title": project.name,
-			"Implementation-Version": project.version,
-			"Main-Class": project.mainClassName
-		)
-        }
-  	baseName = 'repacked'
+    from 'build/temporary'
+    manifest {
+        attributes(
+                "provider": "gradle",
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Main-Class": project.mainClassName
+        )
+    }
+    baseName = 'repacked'
 }
 
 task repack(type: proguard.gradle.ProGuardTask, dependsOn: rezip) {
 
-  injars(rezip.archivePath)
-  outjars(project.jar.archivePath.getPath())
+    injars(rezip.archivePath)
+    outjars(project.jar.archivePath.getPath())
 
-  libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+    libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
 
-  verbose
-  ignorewarnings
-  dontobfuscate
-  dontshrink
-  dontoptimize
+    verbose
+    ignorewarnings
+    dontobfuscate
+    dontshrink
+    dontoptimize
 
-  keep 'public class gov.usgs.anss.query.EdgeQueryClient { \
+    keep 'public class gov.usgs.anss.query.EdgeQueryClient { \
         public static void main(java.lang.String[]); \
     }'
+}
+
+downloadDependencies {
+    localRepository = file('build/repository')
 }
