@@ -19,7 +19,7 @@
 package gov.usgs.anss.query;
 
 import gov.usgs.anss.query.cwb.formatter.CWBQueryFormatter;
-import nz.org.geonet.simplequakeml.QuakeML_RT_1_2;
+import nz.org.geonet.simplequakeml.QuakeML_1_2;
 import nz.org.geonet.simplequakeml.domain.Event;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -35,14 +35,13 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * An attempt to encapsulate (read isolate) EdgeQueryClient command line args.
  * TODO: move line space handling, double quoting and splitting of arguments to a separate method.
  * 
  * @author richardg
+ * @updated Howard Wu 29/09/2017
  */
 public class EdgeQueryOptions {
 
@@ -61,7 +60,6 @@ public class EdgeQueryOptions {
         sac,
         dcc,
         dcc512,
-        HOLD,
         text,
         NULL;
     }
@@ -79,16 +77,6 @@ public class EdgeQueryOptions {
 			.appendOptional(parseMillisFormat.getParser())
 			.toFormatter()
 			.withZone(DateTimeZone.forID("UTC"));
-    public String host = QueryProperties.getGeoNetCwbIP();
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-    public int port = QueryProperties.getGeoNetCwbPort();
     public String[] args;
     public List<String> extraArgs;
     private Double duration = 300.0;
@@ -107,10 +95,6 @@ public class EdgeQueryOptions {
     // Make a pass for the command line args for either mode!
     public String exclude = null;
     public boolean nosort = false;
-    public boolean holdingMode = false;
-    public String holdingIP = QueryProperties.getGeoNetCwbIP();
-    public int holdingPort = QueryProperties.getGeoNetCwbPort();
-    public String holdingType = "CWB";
     public boolean showIllegals = false;
     public boolean perfMonitor = false;
     public boolean chkDups = false;
@@ -136,8 +120,6 @@ public class EdgeQueryOptions {
      * @return unused args (unmodified order)
      */
     public List parse(String[] args) {
-
-//		List<String> argList = Arrays.asList(args);
         ArrayList<String> argList = new ArrayList(Arrays.asList(args));
         int pos = argList.indexOf("-f");
         if (pos != -1) {
@@ -216,17 +198,6 @@ public class EdgeQueryOptions {
                 i++;
             } else if (args[i].equals("-si")) {
                 showIllegals = true;
-            } else if (args[i].indexOf("-hold") == 0) {
-                holdingMode = true;
-                gapsonly = true;
-                setType(OutputType.HOLD);
-                String[] a = args[i].split(":");
-                if (a.length == 4) {
-                    holdingIP = a[1];
-                    holdingPort = Integer.parseInt(a[2]);
-                    holdingType = a[3];
-                }
-                logger.config("Holdings server=" + holdingIP + "/" + holdingPort + " type=" + holdingType);
             } else if (args[i].equals("-event")) {
                 setEvent(args[i + 1]);
                 i++;
@@ -389,8 +360,6 @@ public class EdgeQueryOptions {
                 return new DCCOutputer(this);
             case dcc512:
                 return new DCC512Outputer(this);
-            case HOLD:
-                return new HoldingOutputer(this);
             case text:
                 return new TextOutputer(this);
         }
@@ -505,16 +474,9 @@ public class EdgeQueryOptions {
 
     }
 
-    /**
-     * Puts the command line args in single quotes, to be sent to the server.
-     * TODO: This should be constructed from the fields.
-     * @return the command line args, single quoted.
-     */
-    public String getSingleQuotedCommand() {
-        // put command line in single quotes.
-        return CWBQueryFormatter.miniSEED(getBeginWithOffset(), getDuration(), getSeedname());
+    public String getFDSNDataSelectPostParam() {
+        return CWBQueryFormatter.fdsnQueryBody(getBeginWithOffset(), getDuration(), getSeedname());
     }
-
     /**
      * Parses the begin time.  This tries to match
      * the documentation for CWBClient but does not
@@ -749,13 +711,13 @@ public class EdgeQueryOptions {
                         }
                     }
                     try {
-                        this.event = new QuakeML_RT_1_2().read(event);
+                        this.event = new QuakeML_1_2().read(event);
                     } catch (Exception e) {
                         Logger.getLogger(EdgeQueryOptions.class.getName()).log(Level.SEVERE, null, e);
                     }
                 } else if (uri.getScheme().equals("file")) {
                     try {
-                        this.event = new QuakeML_RT_1_2().read(
+                        this.event = new QuakeML_1_2().read(
                                 new FileInputStream(new File(uri)));
                     } catch (FileNotFoundException ex) {
                         Logger.getLogger(EdgeQueryOptions.class.getName()).log(Level.SEVERE, null, ex);
@@ -765,19 +727,14 @@ public class EdgeQueryOptions {
                 } else {
 					String quakeMlUri = null;
 					try{
-						quakeMlUri = QueryProperties.getQuakeMlUri(uri.getScheme());
+						quakeMlUri = QueryProperties.getFDSNEventQueryUrl();
 					} catch (MissingResourceException ex) {
 						logger.warning("Couldn't find quakeML URI pattern for " + uri.getScheme());
-						// TODO: list available patterns?
-						logger.info("Known QuakeML authorities are: " +
-								QueryProperties.getQuakeMlAuthorities().toString());
 					}
 
 					if (quakeMlUri != null) {
-						// Assume it's a flagged authority's public ID.
-						Matcher quakeMlUriMatcher = Pattern.compile("%ref%").matcher(quakeMlUri);
                         try {
-                            this.event = new QuakeML_RT_1_2().read(quakeMlUriMatcher.replaceAll(uri.getSchemeSpecificPart()));
+                            this.event = new QuakeML_1_2().read(quakeMlUri+"?eventId="+uri.getSchemeSpecificPart());
                         } catch (Exception e) {
                             Logger.getLogger(EdgeQueryOptions.class.getName()).log(Level.SEVERE, null, e);
                         }

@@ -19,17 +19,17 @@
 package gov.usgs.anss.query.cwb.messages;
 
 import gov.usgs.anss.seed.MiniSeed;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.TreeSet;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.TreeSet;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *

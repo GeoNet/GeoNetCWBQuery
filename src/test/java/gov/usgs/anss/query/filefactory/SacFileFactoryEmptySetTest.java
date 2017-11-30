@@ -23,11 +23,13 @@ import edu.sc.seis.TauP.SacTimeSeries;
 import gov.usgs.anss.query.cwb.data.CWBDataServerMSEEDMock;
 import gov.usgs.anss.query.metadata.MetaDataServerMock;
 import gov.usgs.anss.seed.MiniSeed;
-import java.util.TreeSet;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.util.TreeSet;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -37,11 +39,11 @@ public class SacFileFactoryEmptySetTest {
     @Test
     public void testMakeTimeSeriesFromEmptySet() throws Exception {
 		SacFileFactory sacFileFactory = new SacFileFactory();
-		CWBDataServerMSEEDMock cwbServer = new CWBDataServerMSEEDMock("dummy", 666);
+		CWBDataServerMSEEDMock cwbServer = new CWBDataServerMSEEDMock();
 		cwbServer.loadMSEEDFiles(new String[]{});
 
 		sacFileFactory.setCWBDataServer(cwbServer);
-		sacFileFactory.setMetaDataServer(new MetaDataServerMock("dummy", 666));
+		sacFileFactory.setMetaDataServer(new MetaDataServerMock());
 
 		SacTimeSeries expResult = null;
 		SacTimeSeries result = sacFileFactory.makeTimeSeries(

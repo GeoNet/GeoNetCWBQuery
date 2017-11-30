@@ -18,22 +18,27 @@
  */
 package gov.usgs.anss.query;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.GregorianCalendar;
-import java.util.Calendar;
-import java.nio.ByteBuffer;
-import java.io.FileOutputStream;
-import java.text.DecimalFormat;
-import java.io.IOException;
 import edu.iris.Fissures.codec.Steim1;
 import edu.iris.Fissures.codec.Steim2;
 import edu.iris.Fissures.codec.SteimException;
-import gov.usgs.anss.edge.*;
-import gov.usgs.anss.seed.*;
+import gov.usgs.anss.edge.IllegalSeednameException;
+import gov.usgs.anss.edge.MiniSeedOutputHandler;
+import gov.usgs.anss.edge.RawToMiniSeed;
+import gov.usgs.anss.seed.Blockette1000;
+import gov.usgs.anss.seed.Blockette1001;
+import gov.usgs.anss.seed.MiniSeed;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.GregorianCalendar;
 
 /** This class generates 4096 byte mini-seed from the returned blocks from a 
  * query.  It uses the following general algorithm :

@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author geoffc
+ * @updated Howard Wu 29/09/2017
  */
 public class SacFileFactory {
 
@@ -158,10 +159,9 @@ public class SacFileFactory {
         } else {
             logger.info(
                     String.format(
-                    "No matching data for \"%s\", at begin time %s, duration %.2fs, on %s:%d",
+                    "No matching data for \"%s\", at begin time %s, duration %.2fs",
                     nsclSelectString,
-                    begin.toString("YYYY/MM/dd HH:mm:ss"), duration,
-                    cwbServer.getHost(), cwbServer.getPort()));
+                    begin.toString("YYYY/MM/dd HH:mm:ss"), duration));
         }
     }
 

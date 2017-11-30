@@ -1,0 +1,33 @@
+apply plugin:EnterpriseRepositoryPlugin
+
+class EnterpriseRepositoryPlugin implements Plugin<Gradle> {
+
+    private static String ENTERPRISE_REPOSITORY_URL = "s3://maven.geonet.org.nz"
+
+    void apply(Gradle gradle) {
+        // ONLY USE ENTERPRISE REPO FOR DEPENDENCIES
+        gradle.allprojects{ project ->
+            project.repositories {
+
+                // Remove all repositories not pointing to the enterprise repository url
+                all { ArtifactRepository repo ->
+                    if (!(repo instanceof MavenArtifactRepository) ||
+                          repo.url.toString() != ENTERPRISE_REPOSITORY_URL) {
+                        project.logger.lifecycle "Repository ${repo.url} removed. Only $ENTERPRISE_REPOSITORY_URL is allowed"
+                        remove repo
+                    }
+                }
+
+                // add the enterprise repository
+                maven {
+                    name "STANDARD_ENTERPRISE_REPO"
+                    url ENTERPRISE_REPOSITORY_URL
+                     credentials(AwsCredentials) {
+                       accessKey AWS_ACCESS_KEY
+                       secretKey AWS_SECRET_KEY
+                     }
+                }
+            }
+        }
+    }
+}

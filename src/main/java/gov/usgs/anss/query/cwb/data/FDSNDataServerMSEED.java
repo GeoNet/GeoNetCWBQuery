@@ -18,99 +18,47 @@
  */
 package gov.usgs.anss.query.cwb.data;
 
-import gov.usgs.anss.query.cwb.formatter.CWBQueryFormatter;
 import gov.usgs.anss.edge.IllegalSeednameException;
 import gov.usgs.anss.query.NSCL;
+import gov.usgs.anss.query.QueryProperties;
+import gov.usgs.anss.query.cwb.formatter.CWBQueryFormatter;
 import gov.usgs.anss.query.cwb.messages.MessageFormatter;
 import gov.usgs.anss.seed.MiniSeed;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.TreeSet;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import nz.org.geonet.HashCodeUtil;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.TreeSet;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
- * @author geoffc
+ * @author Howard Wu
  */
-public class CWBDataServerMSEED implements CWBDataServer {
+public class FDSNDataServerMSEED implements CWBDataServer {
 
-    private static final Logger logger = Logger.getLogger(CWBDataServerMSEED.class.getName());
+    private static final Logger logger = Logger.getLogger(FDSNDataServerMSEED.class.getName());
     private static DateTimeFormatter hmsFormat = ISODateTimeFormat.time().withZone(DateTimeZone.forID("UTC"));
 
 
     static {
         logger.fine("$Id: CWBServerImpl.java 1806 2010-02-03 02:59:12Z geoffc $");
     }
-    private String host;
-    private int port;
-    private Socket ds = null;
+    private HttpURLConnection conn;
     private InputStream inStream;
-    private OutputStream outStream;
     private LinkedBlockingQueue<MiniSeed> incomingMiniSEED;
     private NSCL newNSCL = null;
     private NSCL lastNSCL = null;
     private boolean quiet = false;
 	private boolean inStreamOk = false;
-
-    /**
-     * Provides methods for running queries against a CWB server.
-     *
-     * Typical usage would look like:
-     *
-     * cwbServer = new CWBDataServerMSEED("cwb.geonet.org.nz", 80);
-     *   cwbServer.query(begin, duration, nscl);
-     *
-     *  while (cwbServer.hasNext()) {
-     *       result.add(cwbServer.getNext());
-     *   }
-     *
-     *
-     * @param host the CWB server name.
-     * @param port the CWB server port.
-     */
-    public CWBDataServerMSEED(String host, int port) {
-        this.host = host;
-        this.port = port;
-
-    }
-
-	/**
-	 * @return the host
-	 */
-	public String getHost() {
-		return host;
-	}
-
-	/**
-	 * @param host the host to set
-	 */
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	/**
-	 * @return the port
-	 */
-	public int getPort() {
-		return port;
-	}
-
-	/**
-	 * @param port the port to set
-	 */
-	public void setPort(int port) {
-		this.port = port;
-	}
 
     /**
      * Runs a query against the server.
@@ -120,41 +68,23 @@ public class CWBDataServerMSEED implements CWBDataServer {
      * @param nscl the network, station, channel, and location data to query for.  These are all possible wild carded.
      */
     public void query(DateTime begin, Double duration, String nsclSelectString) {
+		String serviceUrl = QueryProperties.getFDSNDataselectQueryUrl();
 
-        while (ds == null) {
+		String postBody = CWBQueryFormatter.fdsnQueryBody(begin, duration, nsclSelectString);
 
-            try {
-                ds = new Socket(this.getHost(), this.getPort());
-            } catch (UnknownHostException ex) {
-                ds = null;
-                logger.warning("Cannot resolve the host: " + this.getHost());
-            } catch (IOException ex) {
-                ds = null;
-                if (ex.getMessage() != null) {
-                    if (ex.getMessage().indexOf("Connection refused") >= 0) {
-                        logger.warning("Problem connecting to " + this.getHost() + ":" + this.getPort() + "  Either the server is down or there is an internet connection problem. " + "Will try again in 20 seconds.");
-                    }
-                } else {
-                    logger.warning("Got IOError opening socket to server e=" + ex);
-                }
-            }
+		try {
+			URL url = new URL(serviceUrl);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Accept", "application/vnd.fdsn.mseed");
+			conn.setDoOutput(true);
+			conn.getOutputStream().write(postBody.getBytes());
+			inStream = conn.getInputStream();
+		} catch (IOException ex) {
+			logger.warning("FDSN service " + serviceUrl + " error:" + ex);
+			System.exit(1);
+		}
 
-            if (ds == null) {
-                try {
-                    Thread.sleep(20000);
-                } catch (InterruptedException ex) {
-                    // Presumably only if we get sigtermed etc.
-                }
-            }
-        }
-
-        try {
-            inStream = ds.getInputStream();
-            outStream = ds.getOutputStream();
-            outStream.write(CWBQueryFormatter.miniSEED(begin, duration, nsclSelectString).getBytes());
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
 
         incomingMiniSEED = new LinkedBlockingQueue<MiniSeed>();
 
@@ -322,13 +252,7 @@ public class CWBDataServerMSEED implements CWBDataServer {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        try {
-            outStream.write(("\n").getBytes());
-        } catch (IOException ex) {
-            logger.log(Level.FINE,
-                    "Failed when attempting to close connection.", ex);
-        }
-        ds.close();
+        conn.disconnect();
     }
 
 	@Override
@@ -340,11 +264,8 @@ public class CWBDataServerMSEED implements CWBDataServer {
 			return false;
 		}
 		if (obj.getClass() == this.getClass()) {
-			final CWBDataServerMSEED other = (CWBDataServerMSEED) obj;
-			if (getHost().equals(other.getHost()) &&
-					getPort() == other.getPort()) {
-				return true;
-			}
+			final FDSNDataServerMSEED other = (FDSNDataServerMSEED) obj;
+			return true;
 		}
 		return false;
 	}
@@ -352,8 +273,6 @@ public class CWBDataServerMSEED implements CWBDataServer {
 	@Override
 	public int hashCode() {
 		int result = HashCodeUtil.SEED;
-		result = HashCodeUtil.hash(result, getHost());
-		result = HashCodeUtil.hash(result, getPort());
 		return result;
 	}
 }

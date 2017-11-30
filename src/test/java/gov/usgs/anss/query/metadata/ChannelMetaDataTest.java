@@ -18,15 +18,13 @@
  */
 package gov.usgs.anss.query.metadata;
 
-import gov.usgs.anss.query.*;
+import gov.usgs.anss.query.NSCL;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -44,9 +42,7 @@ public class ChannelMetaDataTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
 
-        metaDataServer = new MetaDataServerMock(
-                QueryProperties.getNeicMetadataServerIP(),
-                QueryProperties.getNeicMetadataServerPort());
+        metaDataServer = new MetaDataServerMock();
 
         mdq = new MetaDataQuery(metaDataServer);
     }

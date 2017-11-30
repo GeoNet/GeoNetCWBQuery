@@ -27,7 +27,10 @@ import nz.org.geonet.simplequakeml.domain.Event;
 import nz.org.geonet.simplequakeml.domain.Pick;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -59,8 +62,8 @@ public class SacFileFactoryTest {
 
         return Arrays.asList(new Object[][]{
                     {
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -83,8 +86,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // Will have metadata but no paz files due to null unit.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -107,7 +110,7 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // No meta-data
-                        new CWBDataServerMSEEDMock("dummy", 80),
+                        new CWBDataServerMSEEDMock(),
                         null,
                         "NZMRZ..HH.10",
                         "%N.sac",
@@ -131,8 +134,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // No sac if gaps - shouldn't be any
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -161,8 +164,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // MS has gaps should produce null sac.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZBFZ..HHE10",
                         "%N.sac",
                         false, // output expected
@@ -188,8 +191,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // MS has gaps but we allow them in the sac.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZBFZ..HHE10",
                         "%N.sac",
                         true, // output expected
@@ -215,8 +218,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // Event data.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected
@@ -242,8 +245,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // Event data from quakeml but don't add picks.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected
@@ -269,8 +272,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // Event data from quakeml but only add picks from iasp91.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected
@@ -296,8 +299,8 @@ public class SacFileFactoryTest {
                         false //extendedPhases
                     },
                     { // Event data and picks from quakeml and picks from iasp91.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected
@@ -324,8 +327,8 @@ public class SacFileFactoryTest {
                     },
                     { // Event data from quakeml but only add extended picks from iasp91. Not really far enough away to
                         // get extra phases.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected
@@ -351,8 +354,8 @@ public class SacFileFactoryTest {
                         true //extendedPhases
                     },
                     { // No quakeml and custom event add extended picks from iasp91.
-                        new CWBDataServerMSEEDMock("dummy", 80),
-                        new MetaDataServerMock("dummy", 2052),
+                        new CWBDataServerMSEEDMock(),
+                        new MetaDataServerMock(),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected

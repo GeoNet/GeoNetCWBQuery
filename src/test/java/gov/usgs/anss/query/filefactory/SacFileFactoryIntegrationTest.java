@@ -21,9 +21,9 @@ package gov.usgs.anss.query.filefactory;
 import edu.sc.seis.TauP.SacTimeSeries;
 import edu.sc.seis.TauP.SacTimeSeriesTestUtil;
 import gov.usgs.anss.query.CustomEvent;
-import gov.usgs.anss.query.cwb.data.CWBDataServerMSEED;
+import gov.usgs.anss.query.cwb.data.FDSNDataServerMSEED;
+import gov.usgs.anss.query.metadata.FDSNMetaDataServerImpl;
 import gov.usgs.anss.query.metadata.MetaDataServer;
-import gov.usgs.anss.query.metadata.MetaDataServerImpl;
 import nz.org.geonet.simplequakeml.domain.Event;
 import nz.org.geonet.simplequakeml.domain.Pick;
 import org.joda.time.DateTime;
@@ -64,8 +64,8 @@ public class SacFileFactoryIntegrationTest {
 
         return Arrays.asList(new Object[][]{
                 {
-                        new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
+                        new FDSNDataServerMSEED(),
+                        new FDSNMetaDataServerImpl(),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -85,8 +85,8 @@ public class SacFileFactoryIntegrationTest {
                         false //extendedPhases
                 },
                 { // Will have metadata but no paz files due to null unit.
-                        new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
+                        new FDSNDataServerMSEED(),
+                        new FDSNMetaDataServerImpl(),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -106,7 +106,7 @@ public class SacFileFactoryIntegrationTest {
                         false //extendedPhases
                 },
                 { // No meta-data
-                        new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
+                        new FDSNDataServerMSEED(),
                         null,
                         "NZMRZ..HH.10",
                         "%N.sac",
@@ -127,8 +127,8 @@ public class SacFileFactoryIntegrationTest {
                         false //extendedPhases
                 },
                 { // No sac if gaps - shouldn't be any
-                        new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
+                        new FDSNDataServerMSEED(),
+                        new FDSNMetaDataServerImpl(),
                         "NZMRZ..HH.10",
                         "%N.sac",
                         true, // output expected
@@ -150,8 +150,8 @@ public class SacFileFactoryIntegrationTest {
                         false //extendedPhases
                 },
                 { // MS has gaps should produce null sac.
-                        new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
+                        new FDSNDataServerMSEED(),
+                        new FDSNMetaDataServerImpl(),
                         "NZBFZ..HHE10",
                         "%N.sac",
                         false, // output expected
@@ -175,8 +175,8 @@ public class SacFileFactoryIntegrationTest {
                         // TODO this meta data server should get pointed at
                         // cwb.geonet.org.nz bu as at 3/8/2011 there is a meta data error with CMPAZ
                         // somewhere and this needs to get released...
-                        new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb-pub.cr.usgs.gov", 2052),
+                        new FDSNDataServerMSEED(),
+                        new FDSNMetaDataServerImpl(),
                         "NZBFZ..HHE10",
                         "%N.sac",
                         true, // output expected
@@ -197,8 +197,8 @@ public class SacFileFactoryIntegrationTest {
                         false //extendedPhases
                 },
                 { // Event data.
-                        new CWBDataServerMSEED("cwb.geonet.org.nz", 80),
-                        new MetaDataServerImpl("cwb.geonet.org.nz", 2052),
+                        new FDSNDataServerMSEED(),
+                        new FDSNMetaDataServerImpl(),
                         "NZTSZ..HHN10",
                         "%z%y%M%D%h%m.%s.%c.%l.%n.sac",
                         true, // output expected
@@ -220,7 +220,7 @@ public class SacFileFactoryIntegrationTest {
                 },
         });
     }
-    private CWBDataServerMSEED cwbServer;
+    private FDSNDataServerMSEED cwbServer;
     private MetaDataServer mdServer;
     private String nsclSelectString;
     private String fileMask;
@@ -242,7 +242,7 @@ public class SacFileFactoryIntegrationTest {
     private ArrayList<SacTimeSeries> expectedSac;
     private Iterator<SacTimeSeries> expectedSacIter;
 
-    public SacFileFactoryIntegrationTest(CWBDataServerMSEED cwbServer, MetaDataServer mdServer, String nsclSelectString, String fileMask, boolean outputExpected, String[] expectedSacFiles, DateTime begin, double duration, Integer fill, boolean gaps, boolean trim, String pazUnits, boolean pazFilesExpected, String[] expectedPazFiles, Event event, boolean picks, CustomEvent customEvent, String synthetic, boolean extendedPhases) throws Exception {
+    public SacFileFactoryIntegrationTest(FDSNDataServerMSEED cwbServer, MetaDataServer mdServer, String nsclSelectString, String fileMask, boolean outputExpected, String[] expectedSacFiles, DateTime begin, double duration, Integer fill, boolean gaps, boolean trim, String pazUnits, boolean pazFilesExpected, String[] expectedPazFiles, Event event, boolean picks, CustomEvent customEvent, String synthetic, boolean extendedPhases) throws Exception {
         this.cwbServer = cwbServer;
         this.mdServer = mdServer;
         this.nsclSelectString = nsclSelectString;
